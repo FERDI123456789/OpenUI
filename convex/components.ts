@@ -4,12 +4,17 @@ import { v } from "convex/values";
 export const createComponent = mutation({
   args: {
     name: v.string(),
-    language: v.union(v.literal("html"), v.literal("jsx"), v.literal("vue"), v.literal("astro")),
+    language: v.union(
+      v.literal("html"),
+      v.literal("jsx"),
+      v.literal("vue"),
+      v.literal("astro")
+    ),
     css: v.optional(v.string()),
     code: v.string(),
     userId: v.id("users"),
   },
-  handler: async (ctx, {name, language, css, code, userId}) => {
+  handler: async (ctx, { name, language, css, code, userId }) => {
     const component = await ctx.db.insert("component", {
       name,
       language,
@@ -18,7 +23,7 @@ export const createComponent = mutation({
       userId,
     });
     return component;
-  }
+  },
 });
 
 export const getComponents = query({
@@ -33,7 +38,16 @@ export const getComponents = query({
         .collect();
     }
     return [];
-  }
+  },
+});
+
+export const getPublicComponents = query({
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("component")
+      .filter((q) => q.eq(q.field("published"), true))
+      .collect();
+  },
 });
 
 export const getSavedComponents = query({
@@ -44,14 +58,13 @@ export const getSavedComponents = query({
     if (userId) {
       return await ctx.db
         .query("component")
-        .filter((q) => q.and(
-          q.eq(q.field("userId"), userId),
-          q.eq(q.field("saved"), true)
-        ))
+        .filter((q) =>
+          q.and(q.eq(q.field("userId"), userId), q.eq(q.field("saved"), true))
+        )
         .collect();
     }
     return [];
-  }
+  },
 });
 
 export const getPublishedComponents = query({
@@ -62,14 +75,16 @@ export const getPublishedComponents = query({
     if (userId) {
       return await ctx.db
         .query("component")
-        .filter((q) => q.and(
-          q.eq(q.field("userId"), userId),
-          q.eq(q.field("published"), true)
-        ))
+        .filter((q) =>
+          q.and(
+            q.eq(q.field("userId"), userId),
+            q.eq(q.field("published"), true)
+          )
+        )
         .collect();
     }
     return [];
-  }
+  },
 });
 
 export const saveComponent = mutation({
@@ -83,7 +98,7 @@ export const saveComponent = mutation({
     }
     await ctx.db.patch(componentId, { saved: true });
     return { success: true };
-  }
+  },
 });
 
 export const publishComponent = mutation({
@@ -97,7 +112,7 @@ export const publishComponent = mutation({
     }
     await ctx.db.patch(componentId, { published: true });
     return { success: true };
-  }
+  },
 });
 
 export const unpublishComponent = mutation({
@@ -111,5 +126,5 @@ export const unpublishComponent = mutation({
     }
     await ctx.db.patch(componentId, { published: false });
     return { success: true };
-  }
+  },
 });

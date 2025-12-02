@@ -8,7 +8,12 @@ export default defineSchema({
   }).index("by_username", ["username"]),
   component: defineTable({
     name: v.string(),
-    language: v.union(v.literal("html"), v.literal("jsx"), v.literal("vue"), v.literal("astro")),
+    language: v.union(
+      v.literal("html"),
+      v.literal("jsx"),
+      v.literal("vue"),
+      v.literal("astro")
+    ),
     css: v.optional(v.string()),
     code: v.string(),
     userId: v.id("users"),

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
-import App from "./pubComponents";
+import App from "./App";
+import PublicComponentsList from "./PublicComponents";
 
 export default function Main() {
   const [client, setClient] = useState<ConvexReactClient | null>(null);
