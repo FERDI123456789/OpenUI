@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
-import Post from "./pubComponents";
+import App from "./pubComponents";
 
 export default function Main() {
   const [client, setClient] = useState<ConvexReactClient | null>(null);
@@ -38,7 +38,7 @@ export default function Main() {
 
   return (
     <ConvexProvider client={client}>
-      <Post />
+      <App />
     </ConvexProvider>
   );
 }
