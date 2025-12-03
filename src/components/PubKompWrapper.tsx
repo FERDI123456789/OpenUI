@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
-import App from "./App";
-import PublicComponentsList from "./PublicComponents";
+import PublicComponentsList from "./PublicComponents"; // Remove unused App import if not needed
 
-export default function Main() {
+export default function PubKompWrapper() {
   const [client, setClient] = useState<ConvexReactClient | null>(null);
 
   useEffect(() => {
-    //@ts-ignore
     const convex = new ConvexReactClient(import.meta.env.PUBLIC_CONVEX_URL);
     setClient(convex);
   }, []);
@@ -36,7 +34,6 @@ export default function Main() {
         </div>
       </div>
     );
-
   return (
     <ConvexProvider client={client}>
       <PublicComponentsList />

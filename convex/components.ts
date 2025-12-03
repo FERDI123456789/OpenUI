@@ -67,6 +67,36 @@ export const getSavedComponents = query({
   },
 });
 
+export const getPublicComponentById = query({
+  args: {
+    id: v.id("component"),
+  },
+  handler: async (ctx, { id }) => {
+    const comp = await ctx.db.get(id);
+    if (!comp || comp.published !== true) return null;
+    return comp;
+  },
+});
+
+export const getUserById = query({
+  args: {
+    id: v.id("users"), // Fix: Change "user" to "users"
+  },
+  handler: async (ctx, { id }) => {
+    const user = await ctx.db.get(id); // Optional: Rename variable for clarity
+    return user;
+  },
+});
+
+export const getUserProfile = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, { userId }) => {
+    const user = await ctx.db.get(userId);
+    if (!user) return null;
+    return { username: user.username /* add other public fields */ };
+  },
+});
+
 export const getPublishedComponents = query({
   args: {
     userId: v.optional(v.id("users")),

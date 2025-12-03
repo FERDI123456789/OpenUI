@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
-import App from "./App";
+import PublicComponentsList from "./Component"; // Remove unused App import if not needed
 
-export default function Main({ userId }: { userId?: string }) {
+export default function PubKompWrapper({ id }: { id?: string }) {
   const [client, setClient] = useState<ConvexReactClient | null>(null);
 
   useEffect(() => {
-    //@ts-ignore
     const convex = new ConvexReactClient(import.meta.env.PUBLIC_CONVEX_URL);
     setClient(convex);
   }, []);
+
+  console.log("PubKompWrapper received id:", id); // Debug log - remove in production
 
   if (!client)
     return (
@@ -36,9 +37,17 @@ export default function Main({ userId }: { userId?: string }) {
       </div>
     );
 
+  if (!id) {
+    return (
+      <div className="p-6 text-red-500 text-center">
+        No component ID provided in URL.
+      </div>
+    );
+  }
+
   return (
     <ConvexProvider client={client}>
-      <App profileId={userId} />
+      <PublicComponentsList id={id} />
     </ConvexProvider>
   );
 }

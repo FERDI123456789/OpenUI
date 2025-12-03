@@ -16,13 +16,17 @@ import LandingPage from "./LandingPage";
  * - Passes data + handlers down to presentational components
  */
 
-export default function App() {
+export default function App({ profileId }: { profileId?: string }) {
   const [userId, setUserId] = React.useState<string | null>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("userId");
     }
     return null;
   });
+
+  const isOwnProfile = profileId === userId || !profileId;
+  const queryUserId = profileId || userId; // Use URL param if available
+
   const [isSignup, setIsSignup] = React.useState(false);
   const [showAuthModal, setShowAuthModal] = React.useState(false);
   const [authError, setAuthError] = React.useState<string | null>(null);
@@ -55,24 +59,32 @@ export default function App() {
 
   const allComponents = useQuery(
     api.components.getComponents,
-    userId ? { userId: userId as any } : "skip"
-  );
-  const savedComponents = useQuery(
-    api.components.getSavedComponents,
-    userId ? { userId: userId as any } : "skip"
-  );
-  const publishedComponents = useQuery(
-    api.components.getPublicComponents,
-    userId ? { userId: userId as any } : "skip"
+    queryUserId ? { userId: queryUserId as any } : "skip"
   );
 
-  // Get components based on current page
+  const savedComponents = useQuery(
+    api.components.getSavedComponents,
+    queryUserId ? { userId: queryUserId as any } : "skip"
+  );
+
+  const publishedComponents = useQuery(
+    api.components.getPublishedComponents, // Fix: Was getPublicComponents, which doesn't take args
+    queryUserId ? { userId: queryUserId as any } : "skip"
+  );
+
+  // Optionally fetch profile user's details (e.g., username) if not own profile
+  const profileUser = useQuery(
+    api.components.getUserById, // Assuming this is meant for users table
+    profileId ? { id: profileId as any } : "skip"
+  );
+
+  // Update getCurrentComponents to respect profile
   const getCurrentComponents = () => {
+    if (!isOwnProfile) return publishedComponents; // Only show published for other users
     if (currentPage === "saved") return savedComponents;
     if (currentPage === "published") return publishedComponents;
     return allComponents;
   };
-
   const components = getCurrentComponents();
 
   // Filter components by search query
@@ -164,6 +176,12 @@ export default function App() {
     }
   }, [currentUser]);
 
+  React.useEffect(() => {
+    if (!isOwnProfile) {
+      setCurrentPage("published");
+    }
+  }, [isOwnProfile]);
+
   const getLanguageBadgeColor = (lang: string) => {
     switch (lang) {
       case "html":
@@ -202,67 +220,11 @@ export default function App() {
     }
   };
 
-  // If not authenticated, show landing + auth modal
-  if (!userId) {
-    return (
-      <div className="min-h-screen bg-white">
-        {/* Header */}
-        <header className="border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="text-2xl font-bold text-gray-900 ">OpenUI</div>
-              <nav className="hidden md:flex items-center gap-8">
-                <a
-                  href="/komponenten"
-                  className="group text-gray-600 hover:text-orange-500 text-sm transition-all duration-200"
-                >
-                  Komponenten
-                  <div className="bg-orange-400 h-0.5 w-0 rounded-full group-hover:w-full transition-all duration-200"></div>
-                </a>
-              </nav>
-              <button
-                onClick={() => {
-                  setIsSignup(false);
-                  setShowAuthModal(true);
-                }}
-                className="group text-sm font-medium text-gray-900 hover:text-gray-700 cursor-pointer"
-              >
-                Log in
-                <div className="bg-orange-500 h-0.5 w-0 rounded-xl group-hover:w-full transition-all duration-200"></div>
-              </button>
-            </div>
-          </div>
-        </header>
-
-        {/* Landing */}
-        <LandingPage
-          onOpenSignup={() => {
-            setIsSignup(true);
-            setShowAuthModal(true);
-          }}
-        />
-
-        {/* Auth Modal */}
-        {showAuthModal && (
-          <AuthModal
-            isSignup={isSignup}
-            onClose={() => {
-              setShowAuthModal(false);
-              setAuthError(null);
-            }}
-            onSwitchMode={(next) => setIsSignup(next)}
-            onSubmit={handleAuth}
-            authError={authError}
-          />
-        )}
-      </div>
-    );
-  }
-
-  // Authenticated UI
   return (
     <DashboardLayout
       username={username}
+      profileUsername={profileUser?.username}
+      isOwnProfile={isOwnProfile}
       currentPage={currentPage}
       setCurrentPage={setCurrentPage}
       onLogout={handleLogout}
@@ -275,15 +237,19 @@ export default function App() {
         setViewMode={setViewMode}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        onCreateClick={() => {
-          setShowCreatePage(true);
-          setNewComponent({
-            name: "",
-            language: "html",
-            css: "",
-            code: "<div class='p-6 text-center'>Start building your component...</div>",
-          });
-        }}
+        onCreateClick={
+          isOwnProfile
+            ? () => {
+                setShowCreatePage(true);
+                setNewComponent({
+                  name: "",
+                  language: "html",
+                  css: "",
+                  code: "<div class='p-6 text-center'>Start building your component...</div>",
+                });
+              }
+            : undefined
+        }
         onSelectComponent={(c) => setSelectedComponent(c)}
         getLanguageBadgeColor={getLanguageBadgeColor}
         currentPage={currentPage}

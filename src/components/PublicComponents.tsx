@@ -97,9 +97,10 @@ export default function PublicComponentsList() {
         />
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredComponents.map((component: any) => (
-            <div
+            <a
               key={component._id}
-              className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+              href={`/komponenten/${component._id}`} // Adjust the base path if needed (e.g., /components/[id])
+              className="block bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
             >
               <div className="p-4 flex flex-col justify-between">
                 <div>
@@ -129,7 +130,7 @@ export default function PublicComponentsList() {
                   />
                 </div>
               </div>
-            </div>
+            </a>
           ))}
 
           {filteredComponents.length === 0 && (
