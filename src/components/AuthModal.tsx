@@ -14,7 +14,7 @@ export default function AuthModal({
   authError: string | null;
 }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 backdrop-blur-xl bg-orange-500/70 bg-opacity-50 flex items-center justify-center p-4 z-50 transition-all duration-300">
       <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold text-gray-900">

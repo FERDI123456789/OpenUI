@@ -59,7 +59,88 @@ export default function ComponentsView({
       />
 
       {/* Components Display */}
-      {/* ... rest of your grid/list rendering remains unchanged ... */}
+      {(filteredComponents?.length ?? 0) === 0 ? (
+        <div className="text-gray-500 text-center mt-10">
+          No components found.
+        </div>
+      ) : viewMode === "grid" ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+          {filteredComponents.map((component) => (
+            <div
+              key={component._id}
+              onClick={() => onSelectComponent(component)}
+              className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition cursor-pointer"
+            >
+              <div className="p-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {component.name}
+                </h3>
+
+                <span
+                  className={`inline-flex mt-1 px-2 py-1 rounded text-xs font-medium ${getLanguageBadgeColor(
+                    component.language
+                  )}`}
+                >
+                  {component.language.toUpperCase()}
+                </span>
+
+                {/* Optional: show creator */}
+                {component.user?.username && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    by {component.user.username}
+                  </p>
+                )}
+              </div>
+
+              <div className="border-t border-gray-200 h-56">
+                <ComponentRenderer
+                  code={component.code}
+                  css={component.css}
+                  language={component.language}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* LIST VIEW */
+        <div className="mt-6 space-y-3">
+          {filteredComponents.map((component) => (
+            <div
+              key={component._id}
+              onClick={() => onSelectComponent(component)}
+              className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow transition cursor-pointer flex items-center justify-between"
+            >
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {component.name}
+                </h3>
+                <span
+                  className={`inline-flex mt-1 px-2 py-1 rounded text-xs font-medium ${getLanguageBadgeColor(
+                    component.language
+                  )}`}
+                >
+                  {component.language.toUpperCase()}
+                </span>
+
+                {component.user?.username && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    by {component.user.username}
+                  </p>
+                )}
+              </div>
+
+              <div className="w-48 h-24 border border-gray-200 rounded overflow-hidden">
+                <ComponentRenderer
+                  code={component.code}
+                  css={component.css}
+                  language={component.language}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </>
   );
 }

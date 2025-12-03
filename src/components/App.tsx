@@ -62,7 +62,7 @@ export default function App() {
     userId ? { userId: userId as any } : "skip"
   );
   const publishedComponents = useQuery(
-    api.components.getPublishedComponents,
+    api.components.getPublicComponents,
     userId ? { userId: userId as any } : "skip"
   );
 
@@ -213,22 +213,11 @@ export default function App() {
               <div className="text-2xl font-bold text-gray-900 ">OpenUI</div>
               <nav className="hidden md:flex items-center gap-8">
                 <a
-                  href="#"
-                  className="text-gray-600 hover:text-gray-900 text-sm"
+                  href="/komponenten"
+                  className="group text-gray-600 hover:text-orange-500 text-sm transition-all duration-200"
                 >
-                  Products
-                </a>
-                <a
-                  href="#"
-                  className="text-gray-600 hover:text-gray-900 text-sm"
-                >
-                  Pricing
-                </a>
-                <a
-                  href="#"
-                  className="text-gray-600 hover:text-gray-900 text-sm"
-                >
-                  Docs
+                  Komponenten
+                  <div className="bg-orange-400 h-0.5 w-0 rounded-full group-hover:w-full transition-all duration-200"></div>
                 </a>
               </nav>
               <button
@@ -236,9 +225,10 @@ export default function App() {
                   setIsSignup(false);
                   setShowAuthModal(true);
                 }}
-                className="text-sm font-medium text-gray-900 hover:text-gray-700"
+                className="group text-sm font-medium text-gray-900 hover:text-gray-700 cursor-pointer"
               >
                 Log in
+                <div className="bg-orange-500 h-0.5 w-0 rounded-xl group-hover:w-full transition-all duration-200"></div>
               </button>
             </div>
           </div>
