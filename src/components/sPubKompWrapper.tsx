@@ -14,24 +14,12 @@ export default function PubKompWrapper({ id }: { id?: string }) {
 
   if (!client)
     return (
-      <div className="text-end max-w-7xl mx-auto pt-6">
-        {/* SIGN UP OR CREATE POST FORM */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-10 text-left px-6">
-          <section className="w-full">
-            <div className="rounded-lg w-full bg-gray-100 text-black ">
-              <div className="skeleton h-96 w-full"></div>
-            </div>
-          </section>
-
-          {/* POSTS */}
-          <div className="flex flex-col space-y-5 w-full text-black">
-            <div className="flex flex-col space-y-5 w-full text-black">
-              <p className="text-gray-500 text-center space-y-5">
-                <div className="skeleton h-64 "></div>
-                <div className="skeleton h-64 "></div>
-                <div className="skeleton h-64 "></div>
-              </p>
-            </div>
+      <div className="min-h-screen bg-gray-900 pt-24 pb-16">
+        <div className="max-w-5xl mx-auto px-6 lg:px-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-10 bg-gray-800 rounded w-1/3"></div>
+            <div className="h-96 bg-gray-800 rounded-xl"></div>
+            <div className="h-64 bg-gray-800 rounded-xl"></div>
           </div>
         </div>
       </div>

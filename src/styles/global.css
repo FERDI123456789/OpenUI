@@ -1,11 +1,15 @@
-@import "tailwindcss";
+/* 1. ZUERST ALLE @import URL (Google Fonts) - Sie MÜSSEN VOR JEDER TAILWIND-REGEL stehen */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 
-@plugin "daisyui";
+/* 2. DANN DIE KORREKTE TAILWIND-IMPORT-REGEL */
+/* Wir verwenden 'tailwindcss' als einzelne Import-Anweisung */
+@import "tailwindcss"; 
 
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap");
-
-@tailwind utilities;
-
+/* 3. IHRE BENUTZERDEFINIERTEN STILE */
 .font-serif {
-  font-family: "Playfair Display", serif;
+    font-family: 'Playfair Display', serif;
+}
+/* Zusätzlicher Dark-Mode-Basis-Stil für den Body, falls der Layout-Wrapper ihn nicht setzt */
+body {
+    background-color: #111827; /* bg-gray-900 */
 }

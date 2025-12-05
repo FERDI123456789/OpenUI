@@ -9,6 +9,7 @@ import ComponentsView from "./ComponentsView";
 import CreateComponentPage from "./CreateComponentPage";
 import ComponentDetailModal from "./ComponentDetailModel";
 import LandingPage from "./LandingPage";
+import Navbar from "./Navbar";
 
 /**
  * App: root stateful orchestrator
@@ -185,15 +186,15 @@ export default function App({ profileId }: { profileId?: string }) {
   const getLanguageBadgeColor = (lang: string) => {
     switch (lang) {
       case "html":
-        return "bg-orange-100 text-orange-800";
+        return "bg-orange-500/20 text-orange-400 border-orange-500/30";
       case "jsx":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
       case "vue":
-        return "bg-green-100 text-green-800";
+        return "bg-green-500/20 text-green-400 border-green-500/30";
       case "astro":
-        return "bg-purple-100 text-purple-800";
+        return "bg-purple-500/20 text-purple-400 border-purple-500/30";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
   };
 
@@ -220,8 +221,50 @@ export default function App({ profileId }: { profileId?: string }) {
     }
   };
 
+  // Handler für Signup/Login Modal
+  const handleOpenSignup = () => {
+    setIsSignup(true);
+    setShowAuthModal(true);
+    setAuthError(null);
+  };
+
+  const handleOpenLogin = () => {
+    setIsSignup(false);
+    setShowAuthModal(true);
+    setAuthError(null);
+  };
+
+  // Wenn kein User eingeloggt ist, zeige LandingPage
+  if (!userId) {
+    return (
+      <>
+        <Navbar onOpenSignup={handleOpenSignup} onOpenLogin={handleOpenLogin} />
+        <LandingPage onOpenSignup={handleOpenSignup} />
+        {showAuthModal && (
+          <AuthModal
+            isSignup={isSignup}
+            onClose={() => setShowAuthModal(false)}
+            onSwitchMode={(next) => setIsSignup(next)}
+            onSubmit={handleAuth}
+            authError={authError}
+          />
+        )}
+      </>
+    );
+  }
+
   return (
-    <DashboardLayout
+    <>
+      {showAuthModal && (
+        <AuthModal
+          isSignup={isSignup}
+          onClose={() => setShowAuthModal(false)}
+          onSwitchMode={(next) => setIsSignup(next)}
+          onSubmit={handleAuth}
+          authError={authError}
+        />
+      )}
+      <DashboardLayout
       username={username}
       profileUsername={profileUser?.username}
       isOwnProfile={isOwnProfile}
@@ -237,19 +280,17 @@ export default function App({ profileId }: { profileId?: string }) {
         setViewMode={setViewMode}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        onCreateClick={
-          isOwnProfile
-            ? () => {
-                setShowCreatePage(true);
-                setNewComponent({
-                  name: "",
-                  language: "html",
-                  css: "",
-                  code: "<div class='p-6 text-center'>Start building your component...</div>",
-                });
-              }
-            : undefined
-        }
+        {...(isOwnProfile && {
+          onCreateClick: () => {
+            setShowCreatePage(true);
+            setNewComponent({
+              name: "",
+              language: "html",
+              css: "",
+              code: "<div class='p-6 text-center'>Start building your component...</div>",
+            });
+          },
+        })}
         onSelectComponent={(c) => setSelectedComponent(c)}
         getLanguageBadgeColor={getLanguageBadgeColor}
         currentPage={currentPage}
@@ -277,5 +318,6 @@ export default function App({ profileId }: { profileId?: string }) {
         />
       )}
     </DashboardLayout>
+    </>
   );
 }
