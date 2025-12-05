@@ -14,9 +14,8 @@ export const signup = mutation({
       .first();
 
     if (existingUser) {
-      throw new Error("Username already exists");
+      throw new Error("Username already exists"); // Clean message
     }
-
     // Create new user
     const userId = await ctx.db.insert("users", {
       username,
@@ -38,12 +37,9 @@ export const login = mutation({
       .filter((q) => q.eq(q.field("username"), username))
       .first();
 
-    if (!user) {
-      throw new Error("Invalid username or password");
-    }
-
-    // In production, compare hashed passwords
-    if (user.password !== password) {
+    // Return a readable error instead of raw server error
+    if (!user || user.password !== password) {
+      // Throwing a normal Error is okay; on client we’ll read error.message
       throw new Error("Invalid username or password");
     }
 
@@ -62,4 +58,3 @@ export const getCurrentUser = query({
     return await ctx.db.get(userId);
   },
 });
-

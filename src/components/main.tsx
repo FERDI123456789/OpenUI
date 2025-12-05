@@ -1,40 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import App from "./App";
 
 export default function Main({ userId }: { userId?: string }) {
   const [client, setClient] = useState<ConvexReactClient | null>(null);
+  const initializedRef = useRef(false); // Track if already initialized
 
   useEffect(() => {
-    //@ts-ignore
-    const convex = new ConvexReactClient(import.meta.env.PUBLIC_CONVEX_URL);
-    setClient(convex);
+    if (!initializedRef.current) {
+      const convex = new ConvexReactClient(import.meta.env.PUBLIC_CONVEX_URL);
+      setClient(convex);
+      initializedRef.current = true; // mark as initialized
+    }
   }, []);
 
-  if (!client)
-    return (
-      <div className="text-end max-w-7xl mx-auto pt-6">
-        {/* SIGN UP OR CREATE POST FORM */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-10 text-left px-6">
-          <section className="w-full">
-            <div className="rounded-lg w-full bg-gray-100 text-black ">
-              <div className="skeleton h-96 w-full"></div>
-            </div>
-          </section>
-
-          {/* POSTS */}
-          <div className="flex flex-col space-y-5 w-full text-black">
-            <div className="flex flex-col space-y-5 w-full text-black">
-              <p className="text-gray-500 text-center space-y-5">
-                <div className="skeleton h-64 "></div>
-                <div className="skeleton h-64 "></div>
-                <div className="skeleton h-64 "></div>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  if (!client) {
+    return null; // Don't show skeletons again if you want them gone
+  }
 
   return (
     <ConvexProvider client={client}>

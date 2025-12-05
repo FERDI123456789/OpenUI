@@ -17,7 +17,22 @@ export default defineSchema({
     css: v.optional(v.string()),
     code: v.string(),
     userId: v.id("users"),
-    saved: v.optional(v.boolean()),
     published: v.optional(v.boolean()),
+    saveCount: v.optional(v.number()),
+    copyCount: v.optional(v.number()),
   }).index("by_user", ["userId"]),
+  saves: defineTable({
+    userId: v.id("users"),
+    componentId: v.id("component"),
+    active: v.boolean(),
+  })
+    .index("by_user_component", ["userId", "componentId"])
+    .index("by_user_active", ["userId", "active"]),
+  copies: defineTable({
+    userId: v.id("users"),
+    componentId: v.id("component"),
+    active: v.boolean(),
+  })
+    .index("by_user_component", ["userId", "componentId"])
+    .index("by_user_active", ["userId", "active"]),
 });

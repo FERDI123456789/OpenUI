@@ -25,14 +25,14 @@ export default function ComponentsSearchBar({
       <div className="flex items-center gap-2">
         <button
           onClick={() => setViewMode("grid")}
-          className={`p-2 rounded-lg ${viewMode === "grid" ? "bg-gray-100" : "hover:bg-gray-50"}`}
+          className={`p-2 text-black rounded-lg ${viewMode === "grid" ? "bg-gray-100" : "hover:bg-gray-50"}`}
           title="Grid View"
         >
           <span className="text-lg">⊞</span>
         </button>
         <button
           onClick={() => setViewMode("list")}
-          className={`p-2 rounded-lg ${viewMode === "list" ? "bg-gray-100" : "hover:bg-gray-50"}`}
+          className={`p-2 rounded-lg text-black ${viewMode === "list" ? "bg-gray-100" : "hover:bg-gray-50"}`}
           title="List View"
         >
           <span className="text-lg">☰</span>

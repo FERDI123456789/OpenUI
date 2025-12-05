@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ComponentRenderer from "./ComponentRender";
 import ComponentsSearchBar from "./ComponentSearchBar";
+import ComponentPanel from "./ComponentPanel"; // New import
 
 export default function ComponentsView({
   components,
@@ -13,6 +14,9 @@ export default function ComponentsView({
   onSelectComponent,
   getLanguageBadgeColor,
   currentPage,
+  handleTogglePublish,
+  selectedComponent,
+  setSelectedComponent,
 }: {
   components: any[] | undefined;
   filteredComponents: any[];
@@ -20,11 +24,31 @@ export default function ComponentsView({
   setViewMode: (v: "grid" | "list") => void;
   searchQuery: string;
   setSearchQuery: (s: string) => void;
-  onCreateClick: () => void;
+  onCreateClick?: () => void;
   onSelectComponent: (c: any) => void;
   getLanguageBadgeColor: (lang: string) => string;
   currentPage: "components" | "saved" | "published";
+  handleTogglePublish?: (componentId: string) => void;
+  selectedComponent: any | null;
+  setSelectedComponent: React.Dispatch<React.SetStateAction<any | null>>;
 }) {
+  const [panelVisible, setPanelVisible] = useState(false);
+
+  const handleSelect = (component: any) => {
+    setSelectedComponent(component);
+  };
+
+  useEffect(() => {
+    if (selectedComponent) {
+      const id = setTimeout(() => setPanelVisible(true), 10);
+      return () => clearTimeout(id);
+    }
+  }, [selectedComponent]);
+
+  const closePanel = () => {
+    setSelectedComponent(null); // No need for timeout/animation here; handle in ComponentPanel
+  };
+
   return (
     <>
       <div className="mb-8">
@@ -38,8 +62,7 @@ export default function ComponentsView({
         <p className="text-gray-600">Your component library and previews</p>
       </div>
 
-      {/* Create CTA */}
-      {currentPage === "components" && (
+      {currentPage === "components" && onCreateClick && (
         <div className="flex items-center justify-end mb-6">
           <button
             onClick={onCreateClick}
@@ -50,7 +73,6 @@ export default function ComponentsView({
         </div>
       )}
 
-      {/* Search and View Toggle */}
       <ComponentsSearchBar
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -58,24 +80,22 @@ export default function ComponentsView({
         setSearchQuery={setSearchQuery}
       />
 
-      {/* Components Display */}
       {(filteredComponents?.length ?? 0) === 0 ? (
         <div className="text-gray-500 text-center mt-10">
           No components found.
         </div>
       ) : viewMode === "grid" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 h-screen gap-6 mt-6">
           {filteredComponents.map((component) => (
             <div
               key={component._id}
-              onClick={() => onSelectComponent(component)}
+              onClick={() => handleSelect(component)}
               className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition cursor-pointer"
             >
               <div className="p-4">
                 <h3 className="text-lg font-semibold text-gray-900">
                   {component.name}
                 </h3>
-
                 <span
                   className={`inline-flex mt-1 px-2 py-1 rounded text-xs font-medium ${getLanguageBadgeColor(
                     component.language
@@ -83,15 +103,12 @@ export default function ComponentsView({
                 >
                   {component.language.toUpperCase()}
                 </span>
-
-                {/* Optional: show creator */}
                 {component.user?.username && (
                   <p className="text-xs text-gray-500 mt-1">
                     by {component.user.username}
                   </p>
                 )}
               </div>
-
               <div className="border-t border-gray-200 h-56">
                 <ComponentRenderer
                   code={component.code}
@@ -103,12 +120,11 @@ export default function ComponentsView({
           ))}
         </div>
       ) : (
-        /* LIST VIEW */
         <div className="mt-6 space-y-3">
           {filteredComponents.map((component) => (
             <div
               key={component._id}
-              onClick={() => onSelectComponent(component)}
+              onClick={() => handleSelect(component)}
               className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow transition cursor-pointer flex items-center justify-between"
             >
               <div>
@@ -122,14 +138,12 @@ export default function ComponentsView({
                 >
                   {component.language.toUpperCase()}
                 </span>
-
                 {component.user?.username && (
                   <p className="text-xs text-gray-500 mt-1">
                     by {component.user.username}
                   </p>
                 )}
               </div>
-
               <div className="w-48 h-24 border border-gray-200 rounded overflow-hidden">
                 <ComponentRenderer
                   code={component.code}
@@ -141,6 +155,14 @@ export default function ComponentsView({
           ))}
         </div>
       )}
+
+      {/* Slide-in Panel */}
+      <ComponentPanel
+        selectedComponent={selectedComponent}
+        onClose={closePanel}
+        getLanguageBadgeColor={getLanguageBadgeColor}
+        handleTogglePublish={handleTogglePublish}
+      />
     </>
   );
 }
