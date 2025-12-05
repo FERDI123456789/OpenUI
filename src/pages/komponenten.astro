@@ -1,9 +1,11 @@
 ---
+import Navbar from "../components/Navbar";
 import PubKompWrapper from "../components/PubKompWrapper"
 import Layout from "../layouts/Layout.astro";
 
 ---
 
 <Layout>
+        <Navbar client:load/>
     <PubKompWrapper client:load/>
 </Layout>

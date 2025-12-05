@@ -19,7 +19,7 @@ export default function ComponentsSearchBar({
           placeholder="Search by title..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-4 py-2 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
+          className="w-full px-4 py-2.5 bg-gray-800/40 backdrop-blur-sm text-white border border-purple-800/30 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none placeholder-gray-500 transition-all"
         />
       </div>
       <div className="flex items-center gap-2">

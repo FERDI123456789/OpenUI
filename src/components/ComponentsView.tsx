@@ -52,21 +52,24 @@ export default function ComponentsView({
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+        <h1
+          className="text-3xl md:text-4xl font-serif text-white mb-2"
+          style={{ fontFamily: "'Playfair Display', serif" }}
+        >
           {currentPage === "components"
             ? "Components"
             : currentPage === "saved"
               ? "Saved Components"
               : "Published Components"}
         </h1>
-        <p className="text-gray-600">Your component library and previews</p>
+        <p className="text-gray-400">Your component library and previews</p>
       </div>
 
       {currentPage === "components" && onCreateClick && (
         <div className="flex items-center justify-end mb-6">
           <button
             onClick={onCreateClick}
-            className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800"
+            className="px-6 py-2.5 bg-purple-600 text-white rounded-full text-sm font-medium hover:bg-purple-500 transition-all duration-300 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105"
           >
             Create component
           </button>
@@ -81,8 +84,10 @@ export default function ComponentsView({
       />
 
       {(filteredComponents?.length ?? 0) === 0 ? (
-        <div className="text-gray-500 text-center mt-10">
-          No components found.
+        <div className="text-gray-400 text-center mt-10 py-12">
+          <div className="bg-gray-800/40 backdrop-blur-sm border border-purple-800/30 rounded-2xl p-8 max-w-md mx-auto">
+            <p className="text-lg">No components found.</p>
+          </div>
         </div>
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 h-screen gap-6 mt-6">
@@ -93,18 +98,18 @@ export default function ComponentsView({
               className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition cursor-pointer"
             >
               <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-white mb-2">
                   {component.name}
                 </h3>
                 <span
-                  className={`inline-flex mt-1 px-2 py-1 rounded text-xs font-medium ${getLanguageBadgeColor(
+                  className={`inline-flex mt-1 px-3 py-1.5 rounded-lg text-xs font-semibold border ${getLanguageBadgeColor(
                     component.language
                   )}`}
                 >
                   {component.language.toUpperCase()}
                 </span>
                 {component.user?.username && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-400 mt-2">
                     by {component.user.username}
                   </p>
                 )}
@@ -128,18 +133,18 @@ export default function ComponentsView({
               className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow transition cursor-pointer flex items-center justify-between"
             >
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-white mb-2">
                   {component.name}
                 </h3>
                 <span
-                  className={`inline-flex mt-1 px-2 py-1 rounded text-xs font-medium ${getLanguageBadgeColor(
+                  className={`inline-flex mt-1 px-3 py-1.5 rounded-lg text-xs font-semibold border ${getLanguageBadgeColor(
                     component.language
                   )}`}
                 >
                   {component.language.toUpperCase()}
                 </span>
                 {component.user?.username && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-400 mt-2">
                     by {component.user.username}
                   </p>
                 )}

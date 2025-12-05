@@ -130,57 +130,59 @@ export default function App({ profileId }: { profileId?: string }) {
   const canTogglePublish = isOwnProfile && currentPage !== "saved";
 
   return (
-    <DashboardLayout
-      username={username}
-      profileUsername={profileUser?.username}
-      isOwnProfile={isOwnProfile}
-      currentPage={currentPage}
-      setCurrentPage={setCurrentPage}
-      onLogout={() => {
-        localStorage.removeItem("userId");
-        setUserId(null);
-        setUsername("");
-        window.location.href = "/";
-      }}
-      topRightExtra={null}
-    >
-      <ComponentsView
-        components={components}
-        filteredComponents={filteredComponents}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        onCreateClick={
-          isOwnProfile
-            ? () => {
-                setShowCreatePage(true);
-                setNewComponent({
-                  name: "",
-                  language: "html",
-                  css: "",
-                  code: "<div class='p-6 text-center'>Start building your component...</div>",
-                });
-              }
-            : undefined
-        }
-        onSelectComponent={(c) => setSelectedComponent(c)}
-        getLanguageBadgeColor={getLanguageBadgeColor}
+    <>
+      <DashboardLayout
+        username={username}
+        profileUsername={profileUser?.username}
+        isOwnProfile={isOwnProfile}
         currentPage={currentPage}
-        selectedComponent={selectedComponent}
-        setSelectedComponent={setSelectedComponent}
-        handleTogglePublish={canTogglePublish ? handleTogglePublish : undefined}
-      />
-
-      {showCreatePage && (
-        <CreateComponentPage
-          newComponent={newComponent}
-          onChange={handleNewComponentChange}
-          onSubmit={handleCreateSubmit}
-          onCancel={() => setShowCreatePage(false)}
+        setCurrentPage={setCurrentPage}
+        onLogout={() => {
+          localStorage.removeItem("userId");
+          setUserId(null);
+          setUsername("");
+          window.location.href = "/";
+        }}
+        topRightExtra={null}
+      >
+        <ComponentsView
+          components={components}
+          filteredComponents={filteredComponents}
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          {...(isOwnProfile && {
+            onCreateClick: () => {
+              setShowCreatePage(true);
+              setNewComponent({
+                name: "",
+                language: "html",
+                css: "",
+                code: "<div class='p-6 text-center'>Start building your component...</div>",
+              });
+            },
+          })}
+          onSelectComponent={(c) => setSelectedComponent(c)}
           getLanguageBadgeColor={getLanguageBadgeColor}
+          currentPage={currentPage}
+          selectedComponent={selectedComponent}
+          setSelectedComponent={setSelectedComponent}
+          handleTogglePublish={
+            canTogglePublish ? handleTogglePublish : undefined
+          }
         />
-      )}
-    </DashboardLayout>
+
+        {showCreatePage && (
+          <CreateComponentPage
+            newComponent={newComponent}
+            onChange={handleNewComponentChange}
+            onSubmit={handleCreateSubmit}
+            onCancel={() => setShowCreatePage(false)}
+            getLanguageBadgeColor={getLanguageBadgeColor}
+          />
+        )}
+      </DashboardLayout>
+    </>
   );
 }

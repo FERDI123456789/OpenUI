@@ -33,7 +33,7 @@ export default function DashboardLayout({
   }, [displayUsername]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-900">
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 h-full w-64 border-r border-gray-200 bg-white">
         <div className="p-6 border-b border-gray-200">
@@ -61,8 +61,8 @@ export default function DashboardLayout({
               onClick={() => setCurrentPage("components")}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
                 currentPage === "components"
-                  ? "bg-gray-100 text-gray-900 font-medium"
-                  : "text-gray-700 hover:bg-gray-100"
+                  ? "bg-purple-600/20 text-purple-400 font-medium border border-purple-500/30"
+                  : "text-gray-300 hover:bg-purple-900/20 hover:text-purple-400"
               }`}
             >
               <span>💻</span>
@@ -74,8 +74,8 @@ export default function DashboardLayout({
               onClick={() => setCurrentPage("saved")}
               className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
                 currentPage === "saved"
-                  ? "bg-gray-100 text-gray-900 font-medium"
-                  : "text-gray-700 hover:bg-gray-100"
+                  ? "bg-purple-600/20 text-purple-400 font-medium border border-purple-500/30"
+                  : "text-gray-300 hover:bg-purple-900/20 hover:text-purple-400"
               }`}
             >
               <span>⭐</span>
@@ -86,8 +86,8 @@ export default function DashboardLayout({
             onClick={() => setCurrentPage("published")}
             className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
               currentPage === "published"
-                ? "bg-gray-100 text-gray-900 font-medium"
-                : "text-gray-700 hover:bg-gray-100"
+                ? "bg-purple-600/20 text-purple-400 font-medium border border-purple-500/30"
+                : "text-gray-300 hover:bg-purple-900/20 hover:text-purple-400"
             }`}
           >
             <span>📦</span>
@@ -99,15 +99,15 @@ export default function DashboardLayout({
       {/* Main Content */}
       <div className="ml-64">
         {/* Top Bar */}
-        <header className="sticky top-0 z-10 bg-white border-b border-gray-200">
+        <header className="sticky top-0 z-10 bg-gray-800/50 backdrop-blur-sm border-b border-purple-800/30">
           <div className="flex items-center justify-between px-8 h-16">
-            <div className="text-black font-bold">OpenUI</div>
+            <div className="text-purple-400 font-bold text-xl">OpenUI</div>
             {isOwnProfile ? (
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-3">
                   <button
                     onClick={onLogout}
-                    className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
+                    className="text-sm text-gray-300 hover:text-purple-400 cursor-pointer transition-colors"
                   >
                     Logout
                   </button>
@@ -120,7 +120,7 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        <main className="p-8">{children}</main>
+        <main className="p-8 bg-gray-900">{children}</main>
       </div>
     </div>
   );
