@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 
 // --- NAVIGATION-DATEN ---
-const navItems = [{ name: "Docs", href: "#docs" }];
+const navItems: { name: string; href: string }[] = [];
 
 interface NavbarProps {}
 

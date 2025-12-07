@@ -199,9 +199,14 @@ export default function ComponentsView({
       {/* Slide-in Panel */}
       <ComponentPanel
         selectedComponent={selectedComponent}
+        setSelectedComponent={setSelectedComponent}
         onClose={closePanel}
         getLanguageBadgeColor={getLanguageBadgeColor}
         handleTogglePublish={handleTogglePublish}
+        onComponentUpdate={(updatedComponent) => {
+          // Update the component in the filtered list
+          setSelectedComponent(updatedComponent);
+        }}
       />
     </>
   );

@@ -41,12 +41,10 @@ export default function PublicComponentsList() {
     switch (lang) {
       case "html":
         return "bg-orange-100 text-orange-800";
-      case "jsx":
+      case "css":
         return "bg-blue-100 text-blue-800";
-      case "vue":
-        return "bg-green-100 text-green-800";
-      case "astro":
-        return "bg-purple-100 text-purple-800";
+      case "javascript":
+        return "bg-yellow-100 text-yellow-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -190,8 +188,12 @@ export default function PublicComponentsList() {
 
       <ComponentPanel
         selectedComponent={selectedComponent}
+        setSelectedComponent={setSelectedComponent}
         onClose={() => setSelectedComponent(null)}
         getLanguageBadgeColor={getLanguageBadgeColor}
+        onComponentUpdate={(updatedComponent) => {
+          setSelectedComponent(updatedComponent);
+        }}
       />
     </div>
   );

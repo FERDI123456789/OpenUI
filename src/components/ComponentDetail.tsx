@@ -1,66 +1,101 @@
 import React, { useState } from "react";
+// Lucide Icons: Imports sind OK
+import { Eye, Code, Smartphone, Monitor, Copy as CopyIcon, Check } from "lucide-react"; 
+
+// 🚀 KORREKTUR: Syntax Highlighter Imports für maximale Kompatibilität 
+// (Wenn die Neuinstallation fehlschlägt, ist dies oft die Lösung)
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism/vsc-dark-plus"; 
+
 import ComponentRenderer from "./ComponentRender"; // Assuming this is your renderer
-import { Heart, HeartCrack } from "lucide-react";
+
+// Definiere einen minimalen Typ für die Komponente, um Typsicherheit zu gewährleisten
+interface Component {
+  _id: string; 
+  name: string;
+  description?: string;
+  language: "html" | "css" | "javascript" | string;
+  code: string;
+  css?: string;
+  userId?: string;
+  user?: {
+    username?: string;
+  };
+}
+
+// Definiere den Typ für den Zustand des Kopierens
+type CopyState = "idle" | "copied";
 
 export default function ComponentDetail({
   component,
-  onToggleSave,
-  isSaved,
-  userId,
-  onCopyComponent,
   getLanguageBadgeColor,
+  onTogglePublish,
 }: {
-  component: any;
-  onToggleSave?: () => void;
-  isSaved: boolean;
-  userId: string | null;
-  onCopyComponent?: () => void;
+  component: Component; 
   getLanguageBadgeColor: (lang: string) => string;
+  showPublishButton?: boolean; 
+  onTogglePublish?: (componentId: string) => void;
 }) {
-  const [viewportMode, setViewportMode] = useState<"mobile" | "desktop">(
-    "desktop"
-  );
+  const [viewportMode, setViewportMode] = useState<"mobile" | "desktop">("desktop");
   const [viewMode, setViewMode] = useState<"preview" | "code">("preview");
-  const [isHoveringSave, setIsHoveringSave] = useState(false);
+  
+  // Kombinierter State für die Copy-Funktion
+  const [codeCopyStatus, setCodeCopyStatus] = useState<CopyState>("idle");
+  const [cssCopyStatus, setCssCopyStatus] = useState<CopyState>("idle");
 
-  if (!component) return null;
+  // --- Copy-Funktion ---
+  const copyToClipboard = async (text: string, type: "code" | "css") => {
+    if (!text) return;
 
-  const handleCopy = async (text: string) => {
+    const setStatus = type === "code" ? setCodeCopyStatus : setCssCopyStatus;
+    
     try {
       await navigator.clipboard.writeText(text);
-      if (onCopyComponent) {
-        onCopyComponent();
-      }
+      setStatus("copied");
+      setTimeout(() => setStatus("idle"), 2000);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to copy:", err);
+      setStatus("idle"); 
     }
   };
 
-  const saveIcon = () => {
-    if (isSaved) {
-      if (isHoveringSave) {
-        return <HeartCrack className="w-8 h-8" />;
-      } else {
-        return <Heart className="w-8 h-8" fill="#7f1d1d" />;
-      }
-    } else {
-      if (isHoveringSave) {
-        return <Heart className="w-8 h-8" fill="#7f1d1d" />;
-      } else {
-        return <Heart className="w-8 h-8" />;
-      }
-    }
+  // --- Sprache für SyntaxHighlighter ---
+  const getLanguageForSyntaxHighlighter = (lang: string) => {
+    return lang.toLowerCase() as "html" | "css" | "javascript" | string;
   };
 
+  // Extrahiere CSS-Code und prüfe auf JavaScript-Teile
+  let componentCss = component.css || "";
+  let componentJs = "";
+
+  // Logik zur Trennung von JS (falls in <script>-Tags im CSS enthalten)
+  const scriptMatch = componentCss.match(/<script>([\s\S]*?)<\/script>/);
+  if (scriptMatch) {
+    componentJs = scriptMatch[1].trim();
+    // Entferne JavaScript-Teile aus dem CSS-Code für die Code-Anzeige
+    componentCss = componentCss.replace(/<script>[\s\S]*?<\/script>/, "").trim();
+  }
+  
+  // Bestimme die Sprache des Hauptcodes
+  let mainCodeLanguage = getLanguageForSyntaxHighlighter(component.language);
+  if (mainCodeLanguage === 'html' && component.code.startsWith('<')) {
+      // Wenn der Code mit '<' beginnt, ist es wahrscheinlich HTML/JSX
+  }
+  
   return (
-    <div
+    <div 
       className="p-6 overflow-y-auto h-full bg-transparent component-panel"
       style={{
-        animation:
-          "fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1), slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+        // animation: 'fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1), slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
       }}
     >
       <div className="mb-4 space-y-2">
+        {component.description && (
+          <div className="mb-4 p-4 bg-gray-800/50 border border-purple-800/30 rounded-xl">
+            <h3 className="text-sm font-semibold text-purple-300 mb-2">Beschreibung</h3>
+            <p className="text-sm text-gray-300 leading-relaxed">{component.description}</p>
+          </div>
+        )}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-2">
             <span
@@ -70,16 +105,14 @@ export default function ComponentDetail({
             >
               {component.language.toUpperCase()}
             </span>
-            {component.user?.username && (
+            {/* Defensive Checks für user und username */}
+            {component.user?.username && component.userId && ( 
               <p className="text-xs text-gray-400">
-                von{" "}
-                <span className="text-purple-400 font-medium">
-                  {component.user.username}
-                </span>
+                von <a href={`/u/${component.userId}`} className="text-purple-400 font-medium hover:text-purple-300 hover:underline transition-colors" onClick={(e) => e.stopPropagation()}>{component.user.username}</a>
               </p>
             )}
           </div>
-
+          
           {/* View Mode Toggle */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 bg-gray-800/40 backdrop-blur-sm border border-purple-800/30 rounded-xl p-1">
@@ -92,25 +125,7 @@ export default function ComponentDetail({
                 }`}
                 title="Vorschau"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
+                <Eye className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setViewMode("code")}
@@ -121,22 +136,10 @@ export default function ComponentDetail({
                 }`}
                 title="Code-Ansicht"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                  />
-                </svg>
+                <Code className="w-5 h-5" />
               </button>
             </div>
-
+            
             {viewMode === "preview" && (
               <div className="flex items-center gap-2 bg-gray-800/40 backdrop-blur-sm border border-purple-800/30 rounded-xl p-1">
                 <button
@@ -148,19 +151,7 @@ export default function ComponentDetail({
                   }`}
                   title="Handy-Ansicht"
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-                    />
-                  </svg>
+                  <Smartphone className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setViewportMode("desktop")}
@@ -171,63 +162,32 @@ export default function ComponentDetail({
                   }`}
                   title="Desktop-Ansicht"
                 >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    />
-                  </svg>
+                  <Monitor className="w-5 h-5" />
                 </button>
               </div>
-            )}
-            {onToggleSave && (
-              <button
-                onClick={onToggleSave}
-                disabled={!userId}
-                className="text-red-400 hover:text-red-300 transition-colors"
-                title={userId ? (isSaved ? "Unsave" : "Save") : "Login to save"}
-                onMouseEnter={() => setIsHoveringSave(true)}
-                onMouseLeave={() => setIsHoveringSave(false)}
-              >
-                {saveIcon()}
-              </button>
             )}
           </div>
         </div>
       </div>
-
+      
       {viewMode === "preview" ? (
-        <div
-          className={`mt-4 border border-purple-800/30 rounded-xl overflow-hidden bg-gray-900/40 shadow-inner transition-all duration-300 flex items-center justify-center ${
-            viewportMode === "mobile"
-              ? "max-w-[600px] mx-auto h-[900px] relative"
-              : "h-[600px] w-full"
-          }`}
-        >
+        <div className={`mt-4 border border-purple-800/30 rounded-xl overflow-hidden bg-gray-900/40 shadow-inner transition-all duration-300 flex items-center justify-center ${
+          viewportMode === "mobile" ? "max-w-[600px] mx-auto h-[900px] relative" : "h-[600px] w-full"
+        }`}>
           {viewportMode === "mobile" && (
             <div className="absolute inset-0 pointer-events-none z-10">
               {/* Phone Frame */}
-              <div className="absolute top-0 left-0 w-full h-6 bg-gray-700 rounded-t-xl"></div>
-              <div className="absolute bottom-0 left-0 w-full h-6 bg-gray-700 rounded-b-xl"></div>
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-20 h-2.5 bg-gray-700 rounded-b-lg"></div>
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-48 h-2 bg-gray-700 rounded-t-lg"></div>
             </div>
           )}
-          <div
-            className={`w-full h-full transition-all duration-300 ${
-              viewportMode === "mobile"
-                ? "rounded-[2.5rem] scale-75 origin-top"
-                : ""
-            }`}
-          >
+          <div className={`w-full h-full transition-all duration-300 ${
+            viewportMode === "mobile" ? "rounded-[2.5rem] scale-125 origin-top" : ""
+          }`}>
             <ComponentRenderer
-              code={component.code}
-              css={component.css}
+              // Verwende den vollständigen CSS-String mit JS-Tags für den Renderer
+              code={component.code} 
+              css={component.css} 
               language={component.language}
               viewportMode={viewportMode}
             />
@@ -237,71 +197,103 @@ export default function ComponentDetail({
         <div className="mt-4 border border-purple-800/30 rounded-xl overflow-hidden bg-gray-900/40 shadow-inner">
           <div className="p-4 bg-gray-800/50 border-b border-purple-800/30">
             <div className="flex items-center gap-2 mb-2">
-              <span
-                className={`inline-flex px-3 py-1.5 rounded-lg text-xs font-semibold border ${getLanguageBadgeColor(component.language)}`}
-              >
+              <span className={`inline-flex px-3 py-1.5 rounded-lg text-xs font-semibold border ${getLanguageBadgeColor(component.language)}`}>
                 {component.language.toUpperCase()}
               </span>
-              {component.css && (
+              {(component.css) && ( // Prüfe, ob CSS vorhanden ist
                 <span className="inline-flex px-3 py-1.5 rounded-lg text-xs font-semibold border bg-pink-500/20 text-pink-400 border-pink-500/30">
-                  CSS
+                  CSS/JS
                 </span>
               )}
             </div>
           </div>
           <div className="p-4 space-y-4 max-h-[600px] overflow-y-auto">
-            {component.css && (
+            {/* --- CSS/JS-CODE-BLOCK --- */}
+            {(component.css) && (
               <div>
-                <h3 className="text-sm font-semibold text-purple-300 mb-2 flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-semibold text-purple-300 flex items-center gap-2">
+                    <Code className="w-4 h-4" />
+                    CSS/JS
+                  </h3>
+                  <button
+                    onClick={() => copyToClipboard(component.css || "", "css")} // Kopiere immer das Original-CSS
+                    className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-purple-300 hover:text-purple-200 bg-purple-900/30 hover:bg-purple-900/50 border border-purple-800/30 rounded-lg transition-colors"
+                    title="CSS kopieren"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
-                    />
-                  </svg>
-                  CSS
-                </h3>
-                <pre className="bg-gray-950/50 p-4 rounded-lg border border-purple-800/20 overflow-x-auto">
-                  <code className="text-sm text-gray-300 font-mono">
-                    {component.css}
-                  </code>
-                </pre>
+                    {cssCopyStatus === "copied" ? (
+                      <>
+                        <Check className="w-4 h-4" />
+                        Kopiert!
+                      </>
+                    ) : (
+                      <>
+                        <CopyIcon className="w-4 h-4" />
+                        Kopieren
+                      </>
+                    )}
+                  </button>
+                </div>
+                <div className="relative">
+                  <SyntaxHighlighter
+                    language="css" // Zeige es immer als CSS an (auch wenn JS-Tags drin sind)
+                    style={vscDarkPlus}
+                    customStyle={{
+                      margin: 0,
+                      borderRadius: "0.5rem",
+                      padding: "1rem",
+                      fontSize: "0.875rem",
+                    }}
+                  >
+                    {component.css} {/* Zeige den Original-String */}
+                  </SyntaxHighlighter>
+                </div>
               </div>
             )}
+            
+            {/* --- HAUPTCODE-BLOCK (HTML/JSX) --- */}
             <div>
-              <h3 className="text-sm font-semibold text-purple-300 mb-2 flex items-center gap-2">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold text-purple-300 flex items-center gap-2">
+                  <Code className="w-4 h-4" />
+                  {component.language.toUpperCase()} Code
+                </h3>
+                <button
+                  onClick={() => copyToClipboard(component.code, "code")}
+                  className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-purple-300 hover:text-purple-200 bg-purple-900/30 hover:bg-purple-900/50 border border-purple-800/30 rounded-lg transition-colors"
+                  title="Code kopieren"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                  />
-                </svg>
-                {component.language.toUpperCase()} Code
-              </h3>
-              <pre className="bg-gray-950/50 p-4 rounded-lg border border-purple-800/20 overflow-x-auto">
-                <code className="text-sm text-gray-300 font-mono whitespace-pre-wrap">
+                  {codeCopyStatus === "copied" ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      Kopiert!
+                    </>
+                  ) : (
+                    <>
+                      <CopyIcon className="w-4 h-4" />
+                      Kopieren
+                    </>
+                  )}
+                </button>
+              </div>
+              <div className="relative">
+                <SyntaxHighlighter
+                  language={mainCodeLanguage}
+                  style={vscDarkPlus}
+                  customStyle={{
+                    margin: 0,
+                    borderRadius: "0.5rem",
+                    padding: "1rem",
+                    fontSize: "0.875rem",
+                  }}
+                >
                   {component.code}
-                </code>
-              </pre>
+                </SyntaxHighlighter>
+              </div>
             </div>
           </div>
         </div>
       )}
-      {/* Add more details here if needed, e.g., save/copy counts, code viewer */}
     </div>
   );
 }

@@ -34,12 +34,10 @@ function LandingPage() {
     switch (lang) {
       case "html":
         return "bg-orange-500/20 text-orange-400 border-orange-500/30";
-      case "jsx":
+      case "css":
         return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-      case "vue":
-        return "bg-green-500/20 text-green-400 border-green-500/30";
-      case "astro":
-        return "bg-purple-500/20 text-purple-400 border-purple-500/30";
+      case "javascript":
+        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
       default:
         return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
@@ -166,8 +164,12 @@ function LandingPage() {
       {/* Component Panel - slides in from the side */}
       <ComponentPanel
         selectedComponent={selectedComponent}
+        setSelectedComponent={setSelectedComponent}
         onClose={closePanel}
         getLanguageBadgeColor={getLanguageBadgeColor}
+        onComponentUpdate={(updatedComponent) => {
+          setSelectedComponent(updatedComponent);
+        }}
       />
     </main>
   );
