@@ -208,19 +208,19 @@ export const saveComponent = mutation({
         q.eq("userId", userId).eq("componentId", componentId)
       )
       .first();
-    let incremented = false;
+    const shouldIncrement = !existing;
     if (!existing) {
       await ctx.db.insert("saves", {
         userId,
         componentId,
         active: true,
       });
-      incremented = true;
     } else if (!existing.active) {
       await ctx.db.patch(existing._id, { active: true });
+    } else {
+      return { success: true };
     }
-    // If incremented, update the count
-    if (incremented) {
+    if (shouldIncrement) {
       await ctx.db.patch(componentId, {
         saveCount: (component.saveCount || 0) + 1,
       });
@@ -239,25 +239,28 @@ export const copyComponent = mutation({
     if (!component) {
       throw new Error("Component not found");
     }
+    if (component.userId === userId) {
+      throw new Error("Cannot copy your own component");
+    }
     const existing = await ctx.db
       .query("copies")
       .withIndex("by_user_component", (q) =>
         q.eq("userId", userId).eq("componentId", componentId)
       )
       .first();
-    let incremented = false;
+    const shouldIncrement = !existing;
     if (!existing) {
       await ctx.db.insert("copies", {
         userId,
         componentId,
         active: true,
       });
-      incremented = true;
     } else if (!existing.active) {
       await ctx.db.patch(existing._id, { active: true });
+    } else {
+      return { success: true };
     }
-    // If incremented, update the count
-    if (incremented) {
+    if (shouldIncrement) {
       await ctx.db.patch(componentId, {
         copyCount: (component.copyCount || 0) + 1,
       });

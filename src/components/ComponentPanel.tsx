@@ -22,6 +22,14 @@ export default function ComponentPanel({
 
   const componentId = selectedComponent?._id;
 
+  const latestComponent =
+    useQuery(
+      api.components.getPublicComponentById,
+      componentId ? { id: componentId } : "skip"
+    ) || selectedComponent;
+
+  const isOwnComponent = latestComponent?.userId === userId;
+
   const isSaved = useQuery(
     api.components.isSaved,
     userId && componentId ? { componentId, userId } : "skip"
@@ -58,60 +66,48 @@ export default function ComponentPanel({
   };
 
   const handleToggleSave = async () => {
-    if (!userId || !componentId || !setSelectedComponent) return;
+    if (!userId || !componentId) return;
     const newIsSaved = !localIsSaved;
     setLocalIsSaved(newIsSaved);
-    const oldSaveCount = selectedComponent.saveCount || 0;
-    if (newIsSaved) {
-      setSelectedComponent((prev: any) => ({
-        ...prev,
-        saveCount: oldSaveCount + 1,
-      }));
-    }
     try {
       if (newIsSaved) {
         await saveComponent({ componentId, userId });
       } else {
         await unsaveComponent({ componentId, userId });
       }
-    } catch (err) {
-      console.error("Save toggle failed", err);
+    } catch (err: any) {
+      console.error("Save toggle failed:", err);
       setLocalIsSaved(!newIsSaved);
-      if (newIsSaved) {
-        setSelectedComponent((prev: any) => ({
-          ...prev,
-          saveCount: oldSaveCount,
-        }));
-      }
+      alert(err.message || "Failed to save component");
     }
   };
 
   const handleToggleCopy = async () => {
-    if (!userId || !componentId || !setSelectedComponent) return;
+    if (!userId || !componentId) return;
     const newIsCopied = !localIsCopied;
     setLocalIsCopied(newIsCopied);
-    const oldCopyCount = selectedComponent.copyCount || 0;
-    if (newIsCopied) {
-      setSelectedComponent((prev: any) => ({
-        ...prev,
-        copyCount: oldCopyCount + 1,
-      }));
-    }
     try {
       if (newIsCopied) {
         await copyComponent({ componentId, userId });
       } else {
         await uncopyComponent({ componentId, userId });
       }
-    } catch (err) {
-      console.error("Copy toggle failed", err);
+    } catch (err: any) {
+      console.error("Copy toggle failed:", err);
       setLocalIsCopied(!newIsCopied);
-      if (newIsCopied) {
-        setSelectedComponent((prev: any) => ({
-          ...prev,
-          copyCount: oldCopyCount,
-        }));
-      }
+      alert(err.message || "Failed to copy component");
+    }
+  };
+
+  const handleCopyComponent = async () => {
+    if (!userId || !componentId || localIsCopied) return;
+    setLocalIsCopied(true);
+    try {
+      await copyComponent({ componentId, userId });
+    } catch (err: any) {
+      console.error("Copy failed:", err);
+      setLocalIsCopied(false);
+      alert(err.message || "Failed to copy component");
     }
   };
 
@@ -132,16 +128,9 @@ export default function ComponentPanel({
         }`}
       >
         <div className="p-6 flex justify-between items-center text-black border-b border-gray-200">
-          <h2 className="text-2xl font-bold">{selectedComponent.name}</h2>
+          <h2 className="text-2xl font-bold">{latestComponent.name}</h2>
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleToggleSave}
-              className={`flex items-center gap-1 text-sm font-bold ${localIsSaved ? "text-red-700" : "text-gray-500"} hover:text-red-900 transition`}
-              disabled={!userId}
-              title={
-                userId ? (localIsSaved ? "Unsave" : "Save") : "Login to save"
-              }
-            >
+            <p className="flex items-center gap-1 text-sm font-bold text-red-900">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -155,16 +144,9 @@ export default function ComponentPanel({
                   stroke="currentColor"
                 />
               </svg>
-              {selectedComponent.saveCount || 0}
-            </button>
-            <button
-              onClick={handleToggleCopy}
-              className={`flex items-center gap-1 text-sm font-bold ${localIsCopied ? "text-blue-700" : "text-gray-500"} hover:text-blue-900 transition`}
-              disabled={!userId}
-              title={
-                userId ? (localIsCopied ? "Uncopy" : "Copy") : "Login to copy"
-              }
-            >
+              {latestComponent.saveCount || 0}
+            </p>
+            <p className="flex items-center gap-1 text-sm font-bold text-blue-900">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -178,18 +160,18 @@ export default function ComponentPanel({
                   stroke="currentColor"
                 />
               </svg>
-              {selectedComponent.copyCount || 0}
-            </button>
+              {latestComponent.copyCount || 0}
+            </p>
             {handleTogglePublish && (
               <button
                 onClick={() => handleTogglePublish(selectedComponent._id)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                  selectedComponent?.published
+                  latestComponent?.published
                     ? "bg-gray-300 text-black hover:bg-gray-400"
                     : "bg-green-600 text-white hover:bg-green-500"
                 }`}
               >
-                {selectedComponent?.published ? "Unpublish" : "Publish"}
+                {latestComponent?.published ? "Unpublish" : "Publish"}
               </button>
             )}
             <button
@@ -201,9 +183,13 @@ export default function ComponentPanel({
           </div>
         </div>
         <ComponentDetail
-          component={selectedComponent}
+          component={latestComponent}
+          onToggleSave={isOwnComponent ? undefined : handleToggleSave}
+          isSaved={localIsSaved}
+          userId={userId}
+          onCopyComponent={isOwnComponent ? undefined : handleCopyComponent}
           getLanguageBadgeColor={getLanguageBadgeColor}
-          showPublishButton={!!handleTogglePublish} // Optional: if you want to move the button here instead
+          showPublishButton={!!handleTogglePublish}
           onTogglePublish={handleTogglePublish}
         />
       </div>
