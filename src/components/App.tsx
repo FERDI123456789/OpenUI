@@ -14,7 +14,7 @@ export default function App({ profileId }: { profileId?: string }) {
 
   const [username, setUsername] = React.useState("");
   const [currentPage, setCurrentPage] = React.useState<
-    "components" | "saved" | "published"
+    "components" | "saved" | "published" | "discover"
   >("components");
   const [searchQuery, setSearchQuery] = React.useState("");
   const [viewMode, setViewMode] = React.useState<"grid" | "list">("grid");
@@ -44,6 +44,7 @@ export default function App({ profileId }: { profileId?: string }) {
     api.components.getPublishedComponents,
     queryUserId ? { userId: queryUserId as any } : "skip"
   );
+  const allPublicComponents = useQuery(api.components.getPublicComponents);
   const profileUser = useQuery(
     api.components.getUserById,
     profileId ? { id: profileId as any } : "skip"
@@ -53,6 +54,7 @@ export default function App({ profileId }: { profileId?: string }) {
     if (!isOwnProfile) return publishedComponents;
     if (currentPage === "saved") return savedComponents;
     if (currentPage === "published") return publishedComponents;
+    if (currentPage === "discover") return allPublicComponents;
     return allComponents;
   };
 
@@ -67,15 +69,15 @@ export default function App({ profileId }: { profileId?: string }) {
   const getLanguageBadgeColor = (lang: string) => {
     switch (lang) {
       case "html":
-        return "bg-orange-100 text-orange-800";
+        return "bg-orange-500/20 text-orange-400 border-orange-500/30";
       case "jsx":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
       case "vue":
-        return "bg-green-100 text-green-800";
+        return "bg-green-500/20 text-green-400 border-green-500/30";
       case "astro":
-        return "bg-purple-100 text-purple-800";
+        return "bg-purple-500/20 text-purple-400 border-purple-500/30";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
   };
 
@@ -87,13 +89,13 @@ export default function App({ profileId }: { profileId?: string }) {
 
     try {
       if (newPublished) {
-        await publishComponent({ componentId });
+        await publishComponent({ componentId: componentId as any });
       } else {
-        await unpublishComponent({ componentId });
+        await unpublishComponent({ componentId: componentId as any });
       }
     } catch (err) {
       console.error("Toggle failed, reverting...", err);
-      setSelectedComponent((prev) =>
+      setSelectedComponent((prev: any) =>
         prev?._id === componentId
           ? { ...prev, published: !prev.published }
           : prev

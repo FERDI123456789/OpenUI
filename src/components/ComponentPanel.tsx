@@ -21,10 +21,11 @@ export default function ComponentPanel({
     typeof window !== "undefined" ? localStorage.getItem("userId") : null;
 
   const componentId = selectedComponent?._id;
+  const isOwnComponent = selectedComponent?.userId === userId;
 
   const isSaved = useQuery(
     api.components.isSaved,
-    userId && componentId ? { componentId, userId } : "skip"
+    userId && componentId ? { componentId, userId: userId as any } : "skip"
   );
   const [localIsSaved, setLocalIsSaved] = useState(false);
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function ComponentPanel({
 
   const isCopied = useQuery(
     api.components.isCopied,
-    userId && componentId ? { componentId, userId } : "skip"
+    userId && componentId ? { componentId, userId: userId as any } : "skip"
   );
   const [localIsCopied, setLocalIsCopied] = useState(false);
   useEffect(() => {
@@ -47,14 +48,25 @@ export default function ComponentPanel({
 
   useEffect(() => {
     if (selectedComponent) {
-      const id = setTimeout(() => setPanelVisible(true), 10);
-      return () => clearTimeout(id);
+      // Prevent body scroll when panel is open
+      document.body.style.overflow = 'hidden';
+      // Small delay for smooth animation
+      const id = requestAnimationFrame(() => {
+        setPanelVisible(true);
+      });
+      return () => {
+        cancelAnimationFrame(id);
+        document.body.style.overflow = '';
+      };
+    } else {
+      document.body.style.overflow = '';
     }
   }, [selectedComponent]);
 
   const closePanel = () => {
     setPanelVisible(false);
-    setTimeout(() => onClose(), 400); // Delay matches transition duration-400
+    document.body.style.overflow = '';
+    setTimeout(() => onClose(), 500); // Delay matches transition duration-500
   };
 
   const handleToggleSave = async () => {
@@ -70,9 +82,9 @@ export default function ComponentPanel({
     }
     try {
       if (newIsSaved) {
-        await saveComponent({ componentId, userId });
+        await saveComponent({ componentId, userId: userId as any });
       } else {
-        await unsaveComponent({ componentId, userId });
+        await unsaveComponent({ componentId, userId: userId as any });
       }
     } catch (err) {
       console.error("Save toggle failed", err);
@@ -99,9 +111,9 @@ export default function ComponentPanel({
     }
     try {
       if (newIsCopied) {
-        await copyComponent({ componentId, userId });
+        await copyComponent({ componentId, userId: userId as any });
       } else {
-        await uncopyComponent({ componentId, userId });
+        await uncopyComponent({ componentId, userId: userId as any });
       }
     } catch (err) {
       console.error("Copy toggle failed", err);
@@ -120,49 +132,78 @@ export default function ComponentPanel({
   return (
     <>
       <div
-        className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-all duration-400 ${
-          panelVisible ? "opacity-100" : "opacity-0"
+        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-all duration-500 ease-out ${
+          panelVisible ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={closePanel}
+        style={{
+          transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), backdrop-filter 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
       />
 
       <div
-        className={`fixed top-0 right-0 h-full w-[80%] bg-white shadow-2xl z-50 transition-all duration-400 ${
-          panelVisible ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 right-0 h-full w-[85%] max-w-4xl bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/20 backdrop-blur-md shadow-2xl shadow-purple-900/30 z-50 component-panel rounded-l-3xl ${
+          panelVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
         }`}
+        style={{
+          transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+          willChange: 'transform, opacity',
+          borderLeft: '1px solid rgba(147, 51, 234, 0.1)'
+        }}
       >
-        <div className="p-6 flex justify-between items-center text-black border-b border-gray-200">
-          <h2 className="text-2xl font-bold">{selectedComponent.name}</h2>
+        <div className="p-6 flex justify-between items-center text-white border-b border-purple-800/20 bg-gradient-to-r from-gray-900/90 via-gray-900/80 to-gray-900/90">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">{selectedComponent.name}</h2>
           <div className="flex items-center gap-3">
             <button
               onClick={handleToggleSave}
-              className={`flex items-center gap-1 text-sm font-bold ${localIsSaved ? "text-red-700" : "text-gray-500"} hover:text-red-900 transition`}
-              disabled={!userId}
+              className={`flex items-center gap-1 text-sm font-bold transition px-3 py-2 rounded-lg ${
+                isOwnComponent
+                  ? "text-gray-500 bg-gray-800/30 border border-gray-700/30 cursor-not-allowed opacity-50"
+                  : localIsSaved 
+                    ? "text-red-400 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30" 
+                    : "text-gray-400 hover:text-red-400 hover:bg-gray-700/50 border border-transparent"
+              }`}
+              disabled={!userId || isOwnComponent}
               title={
-                userId ? (localIsSaved ? "Unsave" : "Save") : "Login to save"
+                isOwnComponent 
+                  ? "Eigene Komponenten können nicht gespeichert werden" 
+                  : userId 
+                    ? (localIsSaved ? "Entfernen" : "Speichern") 
+                    : "Anmelden zum Speichern"
               }
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 className="w-5 h-5"
+                fill={localIsSaved ? "currentColor" : "none"}
               >
                 <rect width="24" height="24" fill="none" />
                 <path
                   fill="currentColor"
-                  d="M13.5 20c-6.6-6.1-10-9.2-10-12.9C3.5 4 5.9 1.6 9 1.6c1.7 0 3.4.8 4.5 2.1c1.1-1.3 2.8-2.1 4.5-2.1c3.1 0 5.5 2.4 5.5 5.5c0 3.8-3.4 6.9-10 12.9M12 21.1C5.4 15.2 1.5 11.7 1.5 7v-.6c-.6.9-1 2-1 3.2c0 3.8 3.4 6.9 10 12.8z"
-                  stroke-width="0.5"
                   stroke="currentColor"
+                  strokeWidth={localIsSaved ? 0 : 1.5}
+                  d="M13.5 20c-6.6-6.1-10-9.2-10-12.9C3.5 4 5.9 1.6 9 1.6c1.7 0 3.4.8 4.5 2.1c1.1-1.3 2.8-2.1 4.5-2.1c3.1 0 5.5 2.4 5.5 5.5c0 3.8-3.4 6.9-10 12.9z"
                 />
               </svg>
               {selectedComponent.saveCount || 0}
             </button>
             <button
               onClick={handleToggleCopy}
-              className={`flex items-center gap-1 text-sm font-bold ${localIsCopied ? "text-blue-700" : "text-gray-500"} hover:text-blue-900 transition`}
-              disabled={!userId}
+              className={`flex items-center gap-1 text-sm font-bold transition px-3 py-2 rounded-lg ${
+                isOwnComponent
+                  ? "text-gray-500 bg-gray-800/30 border border-gray-700/30 cursor-not-allowed opacity-50"
+                  : localIsCopied 
+                    ? "text-blue-400 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30" 
+                    : "text-gray-400 hover:text-blue-400 hover:bg-gray-700/50 border border-transparent"
+              }`}
+              disabled={!userId || isOwnComponent}
               title={
-                userId ? (localIsCopied ? "Uncopy" : "Copy") : "Login to copy"
+                isOwnComponent 
+                  ? "Eigene Komponenten können nicht kopiert werden" 
+                  : userId 
+                    ? (localIsCopied ? "Kopie entfernen" : "Kopieren") 
+                    : "Anmelden zum Kopieren"
               }
             >
               <svg
@@ -180,23 +221,25 @@ export default function ComponentPanel({
               </svg>
               {selectedComponent.copyCount || 0}
             </button>
-            {handleTogglePublish && (
+            {handleTogglePublish && isOwnComponent && (
               <button
                 onClick={() => handleTogglePublish(selectedComponent._id)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                   selectedComponent?.published
-                    ? "bg-gray-300 text-black hover:bg-gray-400"
-                    : "bg-green-600 text-white hover:bg-green-500"
+                    ? "bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600"
+                    : "bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-500 hover:to-purple-600 border border-purple-500/50"
                 }`}
               >
-                {selectedComponent?.published ? "Unpublish" : "Publish"}
+                {selectedComponent?.published ? "Veröffentlichung aufheben" : "Veröffentlichen"}
               </button>
             )}
             <button
               onClick={closePanel}
-              className="text-gray-500 hover:text-gray-900 text-xl font-bold"
+              className="text-gray-400 hover:text-white hover:bg-gray-700/50 p-2 rounded-lg transition-colors text-xl font-bold"
             >
-              ✕
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
         </div>

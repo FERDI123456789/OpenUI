@@ -9,3 +9,34 @@
 body {
   background-color: #111827; /* bg-gray-900 */
 }
+
+/* Smooth panel animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Smooth transitions for interactive elements */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent layout shift during animations */
+.component-panel {
+  will-change: transform, opacity;
+}
