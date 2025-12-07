@@ -57,56 +57,79 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 text-black">
-      <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl">
-        <h2 className="text-2xl font-semibold mb-6 text-center">
-          {isSignup ? "Sign Up" : "Log In"}
-        </h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/20 p-4 relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-800/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="bg-gray-800/80 backdrop-blur-md rounded-3xl p-8 w-full max-w-md shadow-2xl shadow-purple-900/30 border border-purple-800/30 relative z-10">
+        {/* Logo/Title */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/50">
+              <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-purple-300 bg-clip-text text-transparent">
+              OpenUI
+            </h1>
+          </div>
+          <h2 className="text-2xl font-semibold mb-2 text-white">
+            {isSignup ? "Registrieren" : "Anmelden"}
+          </h2>
+          <p className="text-gray-400 text-sm">
+            {isSignup ? "Erstelle dein Konto, um zu beginnen" : "Willkommen zurück! Bitte melde dich an"}
+          </p>
+        </div>
 
         <form onSubmit={handleAuth} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium mb-2">Username</label>
+            <label className="block text-sm font-medium mb-2 text-gray-300">Benutzername</label>
             <input
               type="text"
               name="username"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none text-black focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-              placeholder="Enter your username"
+              className="w-full px-4 py-3 bg-gray-900/60 backdrop-blur-sm border border-purple-800/30 rounded-xl outline-none text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all hover:border-purple-700/50"
+              placeholder="Gib deinen Benutzernamen ein"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Password</label>
+            <label className="block text-sm font-medium mb-2 text-gray-300">Passwort</label>
             <input
               type="password"
               name="password"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-              placeholder="Enter your password"
+              className="w-full px-4 py-3 bg-gray-900/60 backdrop-blur-sm border border-purple-800/30 rounded-xl outline-none text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all hover:border-purple-700/50"
+              placeholder="Gib dein Passwort ein"
             />
           </div>
 
           {authError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-red-500/20 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm backdrop-blur-sm">
               {authError}
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full bg-gray-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+            className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-3 rounded-xl font-medium hover:from-purple-500 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-purple-500/40 hover:shadow-purple-500/60 hover:scale-[1.02] active:scale-[0.98]"
           >
-            {isSignup ? "Sign Up" : "Log In"}
+            {isSignup ? "Registrieren" : "Anmelden"}
           </button>
 
           <button
             type="button"
             onClick={() => setIsSignup(!isSignup)}
-            className="w-full text-gray-600 hover:text-gray-900 text-sm mt-2"
+            className="w-full text-gray-400 hover:text-purple-400 text-sm mt-2 transition-colors"
           >
             {isSignup
-              ? "Already have an account? Log In"
-              : "Don't have an account? Sign Up"}
+              ? "Bereits ein Konto? Anmelden"
+              : "Noch kein Konto? Registrieren"}
           </button>
         </form>
       </div>

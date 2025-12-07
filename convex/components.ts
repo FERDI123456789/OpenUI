@@ -34,10 +34,19 @@ export const getComponents = query({
   },
   handler: async (ctx, { userId }) => {
     if (userId) {
-      return await ctx.db
+      const components = await ctx.db
         .query("component")
         .filter((q) => q.eq(q.field("userId"), userId))
         .collect();
+      return await Promise.all(
+        components.map(async (comp) => {
+          const user = await ctx.db.get(comp.userId);
+          return {
+            ...comp,
+            user: user ? { username: user.username } : null,
+          };
+        })
+      );
     }
     return [];
   },
@@ -45,10 +54,19 @@ export const getComponents = query({
 
 export const getPublicComponents = query({
   handler: async (ctx) => {
-    return await ctx.db
+    const components = await ctx.db
       .query("component")
       .filter((q) => q.eq(q.field("published"), true))
       .collect();
+    return await Promise.all(
+      components.map(async (comp) => {
+        const user = await ctx.db.get(comp.userId);
+        return {
+          ...comp,
+          user: user ? { username: user.username } : null,
+        };
+      })
+    );
   },
 });
 
@@ -65,7 +83,15 @@ export const getSavedComponents = query({
       )
       .collect();
     const components = await Promise.all(
-      saves.map((s) => ctx.db.get(s.componentId))
+      saves.map(async (s) => {
+        const comp = await ctx.db.get(s.componentId);
+        if (!comp) return null;
+        const user = await ctx.db.get(comp.userId);
+        return {
+          ...comp,
+          user: user ? { username: user.username } : null,
+        };
+      })
     );
     return components.filter((c): c is NonNullable<typeof c> => c !== null);
   },
@@ -141,7 +167,7 @@ export const getPublishedComponents = query({
   },
   handler: async (ctx, { userId }) => {
     if (userId) {
-      return await ctx.db
+      const components = await ctx.db
         .query("component")
         .filter((q) =>
           q.and(
@@ -150,6 +176,15 @@ export const getPublishedComponents = query({
           )
         )
         .collect();
+      return await Promise.all(
+        components.map(async (comp) => {
+          const user = await ctx.db.get(comp.userId);
+          return {
+            ...comp,
+            user: user ? { username: user.username } : null,
+          };
+        })
+      );
     }
     return [];
   },

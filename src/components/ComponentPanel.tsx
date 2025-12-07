@@ -28,11 +28,21 @@ export default function ComponentPanel({
       componentId ? { id: componentId } : "skip"
     ) || selectedComponent;
 
+  const userProfile = useQuery(
+    api.components.getUserProfile,
+    latestComponent?.userId ? { userId: latestComponent.userId } : "skip"
+  );
+
+  const componentWithUser = {
+    ...latestComponent,
+    user: userProfile,
+  };
+
   const isOwnComponent = latestComponent?.userId === userId;
 
   const isSaved = useQuery(
     api.components.isSaved,
-    userId && componentId ? { componentId, userId } : "skip"
+    userId && componentId ? { componentId, userId: userId as any } : "skip"
   );
   const [localIsSaved, setLocalIsSaved] = useState(false);
   useEffect(() => {
@@ -41,7 +51,7 @@ export default function ComponentPanel({
 
   const isCopied = useQuery(
     api.components.isCopied,
-    userId && componentId ? { componentId, userId } : "skip"
+    userId && componentId ? { componentId, userId: userId as any } : "skip"
   );
   const [localIsCopied, setLocalIsCopied] = useState(false);
   useEffect(() => {
@@ -55,14 +65,25 @@ export default function ComponentPanel({
 
   useEffect(() => {
     if (selectedComponent) {
-      const id = setTimeout(() => setPanelVisible(true), 10);
-      return () => clearTimeout(id);
+      // Prevent body scroll when panel is open
+      document.body.style.overflow = "hidden";
+      // Small delay for smooth animation
+      const id = requestAnimationFrame(() => {
+        setPanelVisible(true);
+      });
+      return () => {
+        cancelAnimationFrame(id);
+        document.body.style.overflow = "";
+      };
+    } else {
+      document.body.style.overflow = "";
     }
   }, [selectedComponent]);
 
   const closePanel = () => {
     setPanelVisible(false);
-    setTimeout(() => onClose(), 400); // Delay matches transition duration-400
+    document.body.style.overflow = "";
+    setTimeout(() => onClose(), 500); // Delay matches transition duration-500
   };
 
   const handleToggleSave = async () => {
@@ -71,9 +92,9 @@ export default function ComponentPanel({
     setLocalIsSaved(newIsSaved);
     try {
       if (newIsSaved) {
-        await saveComponent({ componentId, userId });
+        await saveComponent({ componentId, userId: userId as any });
       } else {
-        await unsaveComponent({ componentId, userId });
+        await unsaveComponent({ componentId, userId: userId as any });
       }
     } catch (err: any) {
       console.error("Save toggle failed:", err);
@@ -88,9 +109,9 @@ export default function ComponentPanel({
     setLocalIsCopied(newIsCopied);
     try {
       if (newIsCopied) {
-        await copyComponent({ componentId, userId });
+        await copyComponent({ componentId, userId: userId as any });
       } else {
-        await uncopyComponent({ componentId, userId });
+        await uncopyComponent({ componentId, userId: userId as any });
       }
     } catch (err: any) {
       console.error("Copy toggle failed:", err);
@@ -116,16 +137,28 @@ export default function ComponentPanel({
   return (
     <>
       <div
-        className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-all duration-400 ${
-          panelVisible ? "opacity-100" : "opacity-0"
+        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-all duration-500 ease-out ${
+          panelVisible ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={closePanel}
+        style={{
+          transition:
+            "opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), backdrop-filter 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
       />
 
       <div
-        className={`fixed top-0 right-0 h-full w-[80%] bg-white shadow-2xl z-50 transition-all duration-400 ${
-          panelVisible ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 right-0 h-full w-[85%] max-w-4xl bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/20 backdrop-blur-md shadow-2xl shadow-purple-900/30 z-50 component-panel rounded-l-3xl ${
+          panelVisible
+            ? "translate-x-0 opacity-100"
+            : "translate-x-full opacity-0"
         }`}
+        style={{
+          transition:
+            "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+          willChange: "transform, opacity",
+          borderLeft: "1px solid rgba(147, 51, 234, 0.1)",
+        }}
       >
         <div className="p-6 flex justify-between items-center text-black border-b border-gray-200">
           <h2 className="text-2xl font-bold">{latestComponent.name}</h2>
@@ -176,21 +209,31 @@ export default function ComponentPanel({
             )}
             <button
               onClick={closePanel}
-              className="text-gray-500 hover:text-gray-900 text-xl font-bold"
+              className="text-gray-400 hover:text-white hover:bg-gray-700/50 p-2 rounded-lg transition-colors text-xl font-bold"
             >
-              ✕
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
             </button>
           </div>
         </div>
         <ComponentDetail
-          component={latestComponent}
+          component={componentWithUser}
           onToggleSave={isOwnComponent ? undefined : handleToggleSave}
           isSaved={localIsSaved}
           userId={userId}
           onCopyComponent={isOwnComponent ? undefined : handleCopyComponent}
           getLanguageBadgeColor={getLanguageBadgeColor}
-          showPublishButton={!!handleTogglePublish}
-          onTogglePublish={handleTogglePublish}
         />
       </div>
     </>

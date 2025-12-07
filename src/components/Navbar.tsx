@@ -82,13 +82,13 @@ function Navbar({}: NavbarProps) {
                   href={`/u`}
                   className="text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors duration-300 rounded-md hover:bg-purple-900/20"
                 >
-                  Log In
+                  Anmelden
                 </a>
                 <a
                   href={`/u`}
                   className="bg-purple-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-purple-500 transition-all duration-300 text-sm shadow-lg shadow-purple-500/30"
                 >
-                  Sign Up
+                  Registrieren
                 </a>
               </>
             )}

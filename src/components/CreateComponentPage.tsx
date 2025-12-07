@@ -36,17 +36,16 @@ export default function CreateComponentPage({
                 className="text-sm text-gray-300 hover:text-purple-400 transition-colors mb-4 flex items-center gap-2"
               >
                 <span>←</span>
-                <span>Back to dashboard</span>
+                <span>Zurück zum Dashboard</span>
               </button>
               <h2 
                 className="text-4xl font-semibold text-white mb-3"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
-                Create a <span className="text-purple-400">Component</span>
+                Erstelle eine <span className="text-purple-400">Komponente</span>
               </h2>
               <p className="text-gray-300 text-lg leading-relaxed">
-                Build your component while seeing a live preview update as you
-                type.
+                Baue deine Komponente und sieh eine Live-Vorschau, während du tippst.
               </p>
             </div>
 
@@ -54,7 +53,7 @@ export default function CreateComponentPage({
             <form onSubmit={onSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Component Name
+                  Komponentenname
                 </label>
                 <input
                   type="text"
@@ -68,7 +67,7 @@ export default function CreateComponentPage({
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Language
+                  Sprache
                 </label>
                 <select
                   value={newComponent.language}
@@ -115,7 +114,7 @@ export default function CreateComponentPage({
                 />
                 <p className="text-xs text-gray-400 mt-2 flex items-center gap-1">
                   <span>💡</span>
-                  <span>Tip: the preview on the right updates live as you type.</span>
+                  <span>Tipp: Die Vorschau rechts aktualisiert sich live während du tippst.</span>
                 </p>
               </div>
 
@@ -124,14 +123,14 @@ export default function CreateComponentPage({
                   type="submit"
                   className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-500 transition-all duration-300 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105"
                 >
-                  Save component
+                  Komponente speichern
                 </button>
                 <button
                   type="button"
                   onClick={onCancel}
                   className="px-6 py-3 border border-purple-800/30 rounded-xl text-sm font-medium text-gray-300 hover:bg-purple-900/20 hover:text-purple-400 hover:border-purple-700/50 transition-all"
                 >
-                  Cancel
+                  Abbrechen
                 </button>
               </div>
             </form>
@@ -143,10 +142,10 @@ export default function CreateComponentPage({
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <p className="text-base font-semibold text-white mb-1">
-                    Live Preview
+                    Live-Vorschau
                   </p>
                   <p className="text-xs text-gray-400">
-                    Rendering {newComponent.language.toUpperCase()}
+                    Rendert {newComponent.language.toUpperCase()}
                   </p>
                 </div>
                 <span

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { ConvexProvider, ConvexReactClient, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { ComponentRenderer } from "./ComponentRender";
+import ComponentPanel from "./ComponentPanel";
 import "../styles/global.css";
 
 export default function LandingPageWrapper() {
@@ -27,6 +28,7 @@ export default function LandingPageWrapper() {
 
 function LandingPage() {
   const publicComponents = useQuery(api.components.getPublicComponents);
+  const [selectedComponent, setSelectedComponent] = useState<any | null>(null);
 
   const getLanguageBadgeColor = (lang: string) => {
     switch (lang) {
@@ -41,6 +43,10 @@ function LandingPage() {
       default:
         return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
+  };
+
+  const closePanel = () => {
+    setSelectedComponent(null);
   };
 
   return (
@@ -111,10 +117,13 @@ function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {publicComponents.map((component: any) => (
-              <a
+              <div
                 key={component._id}
-                href={`/komponenten/${component._id}`}
-                className="group bg-gray-800/40 backdrop-blur-sm border border-purple-800/30 rounded-2xl overflow-hidden hover:border-purple-500/60 hover:shadow-2xl hover:shadow-purple-500/30 hover:-translate-y-1 transition-all duration-300"
+                onClick={() => setSelectedComponent(component)}
+                className="group bg-gray-800/40 backdrop-blur-sm border border-purple-800/30 rounded-2xl overflow-hidden hover:border-purple-500/60 hover:shadow-2xl hover:shadow-purple-500/30 hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer active:scale-[0.98]"
+                style={{
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
               >
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
@@ -137,7 +146,7 @@ function LandingPage() {
                     />
                   </div>
                 </div>
-              </a>
+              </div>
             ))}
           </div>
         </div>
@@ -153,6 +162,13 @@ function LandingPage() {
           </div>
         </div>
       )}
+
+      {/* Component Panel - slides in from the side */}
+      <ComponentPanel
+        selectedComponent={selectedComponent}
+        onClose={closePanel}
+        getLanguageBadgeColor={getLanguageBadgeColor}
+      />
     </main>
   );
 }
