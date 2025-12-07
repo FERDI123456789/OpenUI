@@ -1,0 +1,14 @@
+---
+import Dashboard from "../components/App";
+import { ConvexProvider, ConvexReactClient } from "convex/react";
+import Layout from "../layouts/Layout.astro";
+import Main from "../components/main";
+import LandingPage from "../components/LandingPage";
+import Navbar from "../components/Navbar";
+---
+
+<Layout>
+      <Navbar client:load/>
+    <LandingPage client:load/>
+    
+</Layout>

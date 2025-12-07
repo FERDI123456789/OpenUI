@@ -20,7 +20,19 @@
 			"dest": "_render"
 		},
 		{
+			"src": "^/komponenten/?$",
+			"dest": "_render"
+		},
+		{
 			"src": "^/u/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/u/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/$",
 			"dest": "_render"
 		}
 	]

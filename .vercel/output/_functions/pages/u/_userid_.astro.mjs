@@ -1,11 +1,11 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate } from '../../chunks/astro/server_LM7goxkt.mjs';
 import 'piccolore';
-import { a as api, $ as $$Layout } from '../../chunks/Layout_CbTduMwA.mjs';
+import { a as api, $ as $$Layout } from '../../chunks/Layout_oN0H7uQz.mjs';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import React, { useState, useEffect, useRef } from 'react';
 import { useMutation, useQuery, ConvexReactClient, ConvexProvider } from 'convex/react';
 import * as jdenticon from 'jdenticon';
-import { C as ComponentRenderer, a as ComponentPanel } from '../../chunks/ComponentPanel_DVs2WLD-.mjs';
+import { C as ComponentRenderer, a as ComponentPanel } from '../../chunks/ComponentPanel_DnvNnCRo.mjs';
 export { renderers } from '../../renderers.mjs';
 
 function DashboardLayout({
@@ -639,10 +639,12 @@ function App({ profileId }) {
       currentPage,
       setCurrentPage,
       onLogout: () => {
-        localStorage.removeItem("userId");
-        setUserId(null);
-        setUsername("");
-        window.location.href = "/";
+        if (typeof window !== "undefined") {
+          localStorage.clear();
+          setUserId(null);
+          setUsername("");
+          requestAnimationFrame(() => window.location.href = "/");
+        }
       },
       topRightExtra: null,
       children: [
@@ -694,7 +696,7 @@ function Main({ userId }) {
   const initializedRef = useRef(false);
   useEffect(() => {
     if (!initializedRef.current) {
-      const convex = new ConvexReactClient("https://friendly-labrador-327.convex.cloud");
+      const convex = new ConvexReactClient("https://grateful-dodo-887.convex.cloud");
       setClient(convex);
       initializedRef.current = true;
     }
@@ -706,7 +708,6 @@ function Main({ userId }) {
 }
 
 const $$Astro = createAstro();
-const prerender = false;
 const $$userId = createComponent(($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
   Astro2.self = $$userId;
@@ -721,7 +722,6 @@ const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
   default: $$userId,
   file: $$file,
-  prerender,
   url: $$url
 }, Symbol.toStringTag, { value: 'Module' }));
 
