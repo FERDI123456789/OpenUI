@@ -8,7 +8,7 @@ import Navbar from "../components/Navbar";
 ---
 
 <Layout>
-      <Navbar client:load/>
-    <LandingPage client:load/>
+      <Navbar client:only="react"/>
+    <LandingPage client:only="react"/>
     
 </Layout>

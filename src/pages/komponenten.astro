@@ -6,6 +6,6 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout>
-        <Navbar client:load/>
-    <PubKompWrapper client:load/>
+        <Navbar client:only="react"/>
+    <PubKompWrapper client:only="react"/>
 </Layout>
