@@ -8,17 +8,18 @@ export default defineSchema({
   }).index("by_username", ["username"]),
   component: defineTable({
     name: v.string(),
+    description: v.optional(v.string()),
     language: v.union(
       v.literal("html"),
-      v.literal("jsx"),
-      v.literal("vue"),
-      v.literal("astro")
+      v.literal("css"),
+      v.literal("javascript")
     ),
     css: v.optional(v.string()),
     code: v.string(),
     userId: v.id("users"),
     published: v.optional(v.boolean()),
     saveCount: v.optional(v.number()),
+    likeCount: v.optional(v.number()),
     copyCount: v.optional(v.number()),
   }).index("by_user", ["userId"]),
   saves: defineTable({
@@ -35,4 +36,13 @@ export default defineSchema({
   })
     .index("by_user_component", ["userId", "componentId"])
     .index("by_user_active", ["userId", "active"]),
+  likes: defineTable({
+    userId: v.optional(v.id("users")),
+    componentId: v.id("component"),
+    sessionId: v.optional(v.string()), // For users without account
+    active: v.boolean(),
+  })
+    .index("by_user_component", ["userId", "componentId"])
+    .index("by_session_component", ["sessionId", "componentId"])
+    .index("by_component", ["componentId"]),
 });

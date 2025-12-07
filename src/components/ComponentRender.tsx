@@ -39,11 +39,13 @@ export function ComponentRenderer({
   code,
   language,
   css,
+  javascript,
   viewportMode = "desktop",
 }: {
   code: string;
-  language: "html" | "jsx" | "vue" | "astro";
+  language: "html" | "css" | "javascript" | "jsx" | "vue" | "astro";
   css?: string;
+  javascript?: string;
   viewportMode?: "mobile" | "desktop";
 }) {
   const iframeRef = React.useRef<HTMLIFrameElement | null>(null);
@@ -58,8 +60,23 @@ export function ComponentRenderer({
 
     let htmlContent = "";
     let scripts = "";
+    let cssContent = css || "";
 
-    if (language === "html") {
+    // Extract JavaScript from CSS if it contains <script> tags
+    if (cssContent.includes("<script>")) {
+      const scriptMatch = cssContent.match(/<script>([\s\S]*?)<\/script>/);
+      if (scriptMatch) {
+        scripts = `<script>${scriptMatch[1]}</script>`;
+        cssContent = cssContent.replace(/<script>[\s\S]*?<\/script>/, "");
+      }
+    }
+
+    // Add separate JavaScript if provided
+    if (javascript) {
+      scripts += `<script>${javascript}</script>`;
+    }
+
+    if (language === "html" || language === "css" || language === "javascript") {
       htmlContent = code;
     } else if (language === "jsx") {
       htmlContent = '<div id="root"></div>';
@@ -99,7 +116,7 @@ export function ComponentRenderer({
           <script src="https://cdn.tailwindcss.com"></script>
           <style>
             body { margin: 0; padding: 16px; font-family: system-ui, -apple-system, sans-serif; }
-            ${css || ""}
+            ${cssContent}
           </style>
         </head>
         <body>
@@ -112,7 +129,7 @@ export function ComponentRenderer({
     doc.open();
     doc.write(fullHTML);
     doc.close();
-  }, [code, language, css, viewportMode]);
+  }, [code, language, css, javascript, viewportMode]);
 
   return (
     <iframe

@@ -8,15 +8,16 @@ export default function CreateComponentPage({
   onCancel,
   getLanguageBadgeColor,
 }: {
-  newComponent: { name: string; language: string; css: string; code: string };
+  newComponent: { name: string; description: string; language: string; css: string; code: string; javascript: string };
   onChange: (
-    field: "name" | "language" | "css" | "code",
+    field: "name" | "description" | "language" | "css" | "code" | "javascript",
     value: string
   ) => void;
   onSubmit: (e?: React.FormEvent<HTMLFormElement>) => void;
   onCancel: () => void;
   getLanguageBadgeColor: (lang: string) => string;
 }) {
+  const [activeTab, setActiveTab] = React.useState<"html" | "css" | "javascript">("html");
   return (
     <div className="fixed inset-0 bg-gray-900 z-40 overflow-y-auto text-gray-100">
       {/* Purple gradient background effects */}
@@ -67,37 +68,13 @@ export default function CreateComponentPage({
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Sprache
-                </label>
-                <select
-                  value={newComponent.language}
-                  onChange={(e) => onChange("language", e.target.value)}
-                  className="w-full px-4 py-3 text-white bg-gray-800/60 backdrop-blur-sm border border-purple-800/30 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none transition-all hover:border-purple-700/50"
-                >
-                  <option className="text-orange-100 bg-orange-800" value="html">
-                    HTML
-                  </option>
-                  <option className="text-blue-100 bg-blue-800" value="jsx">
-                    JSX
-                  </option>
-                  <option className="text-green-100 bg-green-800" value="vue">
-                    Vue
-                  </option>
-                  <option className="text-purple-100 bg-purple-800" value="astro">
-                    Astro
-                  </option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  CSS (optional)
+                  Beschreibung (optional)
                 </label>
                 <textarea
-                  value={newComponent.css}
-                  onChange={(e) => onChange("css", e.target.value)}
-                  placeholder=".card { background: white; }"
-                  className="w-full px-4 py-3 text-white bg-gray-800/60 backdrop-blur-sm border border-purple-800/30 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none min-h-28 font-mono text-sm transition-all hover:border-purple-700/50 resize-y"
+                  value={newComponent.description}
+                  onChange={(e) => onChange("description", e.target.value)}
+                  placeholder="Beschreibe, wofür diese Komponente verwendet wird..."
+                  className="w-full px-4 py-3 text-white bg-gray-800/60 backdrop-blur-sm border border-purple-800/30 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none min-h-24 transition-all hover:border-purple-700/50 resize-y"
                 />
               </div>
 
@@ -105,13 +82,66 @@ export default function CreateComponentPage({
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Code
                 </label>
-                <textarea
-                  value={newComponent.code}
-                  onChange={(e) => onChange("code", e.target.value)}
-                  placeholder="<section>...</section>"
-                  required
-                  className="w-full px-4 py-3 text-white bg-gray-800/60 backdrop-blur-sm border border-purple-800/30 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none min-h-60 font-mono text-sm transition-all hover:border-purple-700/50 resize-y"
-                />
+                <div className="flex gap-2 mb-2 bg-gray-800/40 backdrop-blur-sm border border-purple-800/30 rounded-xl p-1">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("html")}
+                    className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition ${
+                      activeTab === "html"
+                        ? "bg-purple-600/30 text-purple-300"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    HTML (Pflicht)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("css")}
+                    className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition ${
+                      activeTab === "css"
+                        ? "bg-purple-600/30 text-purple-300"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    CSS (Optional)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("javascript")}
+                    className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition ${
+                      activeTab === "javascript"
+                        ? "bg-purple-600/30 text-purple-300"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    JavaScript (Optional)
+                  </button>
+                </div>
+                {activeTab === "html" && (
+                  <textarea
+                    value={newComponent.code}
+                    onChange={(e) => onChange("code", e.target.value)}
+                    placeholder="<section>...</section>"
+                    required
+                    className="w-full px-4 py-3 text-white bg-gray-800/60 backdrop-blur-sm border border-purple-800/30 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none min-h-60 font-mono text-sm transition-all hover:border-purple-700/50 resize-y"
+                  />
+                )}
+                {activeTab === "css" && (
+                  <textarea
+                    value={newComponent.css}
+                    onChange={(e) => onChange("css", e.target.value)}
+                    placeholder=".card { background: white; }"
+                    className="w-full px-4 py-3 text-white bg-gray-800/60 backdrop-blur-sm border border-purple-800/30 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none min-h-60 font-mono text-sm transition-all hover:border-purple-700/50 resize-y"
+                  />
+                )}
+                {activeTab === "javascript" && (
+                  <textarea
+                    value={newComponent.javascript}
+                    onChange={(e) => onChange("javascript", e.target.value)}
+                    placeholder="// JavaScript Code"
+                    className="w-full px-4 py-3 text-white bg-gray-800/60 backdrop-blur-sm border border-purple-800/30 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none min-h-60 font-mono text-sm transition-all hover:border-purple-700/50 resize-y"
+                  />
+                )}
                 <p className="text-xs text-gray-400 mt-2 flex items-center gap-1">
                   <span>💡</span>
                   <span>Tipp: Die Vorschau rechts aktualisiert sich live während du tippst.</span>
@@ -157,8 +187,9 @@ export default function CreateComponentPage({
               <div className="border border-purple-800/20 rounded-xl bg-gray-900/50 backdrop-blur-sm overflow-hidden min-h-[500px] shadow-inner">
                 <ComponentRenderer
                   code={newComponent.code}
-                  language={newComponent.language as any}
+                  language="html"
                   css={newComponent.css}
+                  javascript={newComponent.javascript}
                 />
               </div>
             </div>

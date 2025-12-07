@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
+import { Heart, X } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import ComponentDetail from "./ComponentDetail";
+// CreateComponentPage wird nicht mehr benötigt und entfernt
 
 export default function ComponentPanel({
   selectedComponent,
@@ -9,37 +11,29 @@ export default function ComponentPanel({
   onClose,
   getLanguageBadgeColor,
   handleTogglePublish,
+  onComponentUpdate,
 }: {
   selectedComponent: any | null;
   setSelectedComponent?: React.Dispatch<React.SetStateAction<any | null>>;
   onClose: () => void;
   getLanguageBadgeColor: (lang: string) => string;
   handleTogglePublish?: (componentId: string) => void;
+  onComponentUpdate?: (updatedComponent: any) => void;
 }) {
   const [panelVisible, setPanelVisible] = useState(false);
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") : null;
 
   const componentId = selectedComponent?._id;
+  const isOwnComponent = selectedComponent?.userId === userId;
 
-  const latestComponent =
-    useQuery(
-      api.components.getPublicComponentById,
-      componentId ? { id: componentId } : "skip"
-    ) || selectedComponent;
+  // --- ENTFERNT: useMutation(api.components.updateComponent) ---
+  
+  // States und Funktionen für die Bearbeitung entfernt
+  // const [showEditPage, setShowEditPage] = useState(false); 
+  // const [editComponent, setEditComponent] = useState({...});
 
-  const userProfile = useQuery(
-    api.components.getUserProfile,
-    latestComponent?.userId ? { userId: latestComponent.userId } : "skip"
-  );
-
-  const componentWithUser = {
-    ...latestComponent,
-    user: userProfile,
-  };
-
-  const isOwnComponent = latestComponent?.userId === userId;
-
+  // Query und State für Speichern/Unspeichern
   const isSaved = useQuery(
     api.components.isSaved,
     userId && componentId ? { componentId, userId: userId as any } : "skip"
@@ -49,191 +43,275 @@ export default function ComponentPanel({
     setLocalIsSaved(isSaved ?? false);
   }, [isSaved]);
 
-  const isCopied = useQuery(
-    api.components.isCopied,
-    userId && componentId ? { componentId, userId: userId as any } : "skip"
-  );
-  const [localIsCopied, setLocalIsCopied] = useState(false);
-  useEffect(() => {
-    setLocalIsCopied(isCopied ?? false);
-  }, [isCopied]);
 
+  // Mutations (UpdateComponent entfernt)
+  const likeComponent = useMutation(api.components.likeComponent);
   const saveComponent = useMutation(api.components.saveComponent);
   const unsaveComponent = useMutation(api.components.unsaveComponent);
-  const copyComponent = useMutation(api.components.copyComponent);
-  const uncopyComponent = useMutation(api.components.uncopyComponent);
+  const deleteComponent = useMutation(api.components.deleteComponent);
+  
+  // Get or create session ID for users without account
+  const getSessionId = () => {
+    if (typeof window === "undefined") return null;
+    let sessionId = localStorage.getItem("sessionId");
+    if (!sessionId) {
+      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem("sessionId", sessionId);
+    }
+    return sessionId;
+  };
+
+  const sessionId = !userId ? getSessionId() : undefined;
+  const isLiked = useQuery(
+    api.components.isLiked,
+    componentId ? { 
+      componentId, 
+      userId: userId as any,
+      sessionId: sessionId || undefined
+    } : "skip"
+  );
+  
+  const [localLikeCount, setLocalLikeCount] = useState(selectedComponent?.likeCount || 0);
+  const [hasLiked, setHasLiked] = useState(false);
 
   useEffect(() => {
     if (selectedComponent) {
       // Prevent body scroll when panel is open
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
       // Small delay for smooth animation
       const id = requestAnimationFrame(() => {
         setPanelVisible(true);
       });
       return () => {
         cancelAnimationFrame(id);
-        document.body.style.overflow = "";
+        document.body.style.overflow = '';
       };
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     }
   }, [selectedComponent]);
 
   const closePanel = () => {
     setPanelVisible(false);
-    document.body.style.overflow = "";
+    document.body.style.overflow = '';
     setTimeout(() => onClose(), 500); // Delay matches transition duration-500
   };
 
+  useEffect(() => {
+    if (selectedComponent) {
+      setLocalLikeCount(selectedComponent.likeCount || 0);
+    }
+  }, [selectedComponent]);
+
+  useEffect(() => {
+    setHasLiked(isLiked ?? false);
+  }, [isLiked]);
+
+  const handleLike = async () => {
+    if (!componentId || !setSelectedComponent || hasLiked) return;
+    const newLikeCount = localLikeCount + 1;
+    setLocalLikeCount(newLikeCount);
+    setHasLiked(true);
+    
+    const updatedComponent = {
+      ...selectedComponent,
+      likeCount: newLikeCount,
+    };
+    
+    if (setSelectedComponent) {
+      setSelectedComponent(updatedComponent);
+    }
+    
+    // Update parent component list immediately
+    if (onComponentUpdate) {
+      onComponentUpdate(updatedComponent);
+    }
+    
+    try {
+      const sessionId = !userId ? getSessionId() : undefined;
+      await likeComponent({ 
+        componentId, 
+        userId: userId as any,
+        sessionId: sessionId || undefined
+      });
+    } catch (err) {
+      console.error("Like failed", err);
+      setLocalLikeCount(localLikeCount);
+      setHasLiked(false);
+      const revertedComponent = {
+        ...selectedComponent,
+        likeCount: localLikeCount,
+      };
+      if (setSelectedComponent) {
+        setSelectedComponent(revertedComponent);
+      }
+      if (onComponentUpdate) {
+        onComponentUpdate(revertedComponent);
+      }
+    }
+  };
+
   const handleToggleSave = async () => {
-    if (!userId || !componentId) return;
+    if (!userId || !componentId || !setSelectedComponent) return;
     const newIsSaved = !localIsSaved;
     setLocalIsSaved(newIsSaved);
+    const oldSaveCount = selectedComponent.saveCount || 0;
+    const newSaveCount = newIsSaved ? oldSaveCount + 1 : Math.max(0, oldSaveCount - 1);
+    
+    const updatedComponent = {
+      ...selectedComponent,
+      saveCount: newSaveCount,
+    };
+    
+    setSelectedComponent(updatedComponent);
+    
+    // Update parent component list immediately
+    if (onComponentUpdate) {
+      onComponentUpdate(updatedComponent);
+    }
+    
     try {
       if (newIsSaved) {
         await saveComponent({ componentId, userId: userId as any });
       } else {
         await unsaveComponent({ componentId, userId: userId as any });
       }
-    } catch (err: any) {
-      console.error("Save toggle failed:", err);
+    } catch (err) {
+      console.error("Save toggle failed", err);
       setLocalIsSaved(!newIsSaved);
-      alert(err.message || "Failed to save component");
-    }
-  };
-
-  const handleToggleCopy = async () => {
-    if (!userId || !componentId) return;
-    const newIsCopied = !localIsCopied;
-    setLocalIsCopied(newIsCopied);
-    try {
-      if (newIsCopied) {
-        await copyComponent({ componentId, userId: userId as any });
-      } else {
-        await uncopyComponent({ componentId, userId: userId as any });
+      const revertedComponent = {
+        ...selectedComponent,
+        saveCount: oldSaveCount,
+      };
+      setSelectedComponent(revertedComponent);
+      if (onComponentUpdate) {
+        onComponentUpdate(revertedComponent);
       }
-    } catch (err: any) {
-      console.error("Copy toggle failed:", err);
-      setLocalIsCopied(!newIsCopied);
-      alert(err.message || "Failed to copy component");
     }
   };
 
-  const handleCopyComponent = async () => {
-    if (!userId || !componentId || localIsCopied) return;
-    setLocalIsCopied(true);
-    try {
-      await copyComponent({ componentId, userId });
-    } catch (err: any) {
-      console.error("Copy failed:", err);
-      setLocalIsCopied(false);
-      alert(err.message || "Failed to copy component");
-    }
-  };
 
   if (!selectedComponent) return null;
 
   return (
     <>
       <div
-        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-all duration-500 ease-out ${
+        className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-all duration-500 ease-out ${
           panelVisible ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={closePanel}
         style={{
-          transition:
-            "opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), backdrop-filter 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+          transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), backdrop-filter 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
       />
 
       <div
-        className={`fixed top-0 right-0 h-full w-[85%] max-w-4xl bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/20 backdrop-blur-md shadow-2xl shadow-purple-900/30 z-50 component-panel rounded-l-3xl ${
-          panelVisible
-            ? "translate-x-0 opacity-100"
-            : "translate-x-full opacity-0"
+        className={`fixed top-0 right-0 h-full w-[85%] max-w-4xl bg-linear-to-br from-gray-900 via-gray-900 to-purple-900/20 backdrop-blur-md shadow-2xl shadow-purple-900/30 z-50 component-panel rounded-l-3xl ${
+          panelVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
         }`}
         style={{
-          transition:
-            "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-          willChange: "transform, opacity",
-          borderLeft: "1px solid rgba(147, 51, 234, 0.1)",
+          transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+          willChange: 'transform, opacity',
+          borderLeft: '1px solid rgba(147, 51, 234, 0.1)'
         }}
       >
-        <div className="p-6 flex justify-between items-center text-black border-b border-gray-200">
-          <h2 className="text-2xl font-bold">{latestComponent.name}</h2>
+        <div className="p-6 flex justify-between items-center text-white border-b border-purple-800/20 bg-linear-to-r from-gray-900/90 via-gray-900/80 to-gray-900/90">
+          <h2 className="text-2xl font-bold bg-linear-to-r from-white to-purple-200 bg-clip-text text-transparent">{selectedComponent.name}</h2>
           <div className="flex items-center gap-3">
-            <p className="flex items-center gap-1 text-sm font-bold text-red-900">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                className="w-5 h-5"
-              >
-                <rect width="24" height="24" fill="none" />
-                <path
-                  fill="currentColor"
-                  d="M13.5 20c-6.6-6.1-10-9.2-10-12.9C3.5 4 5.9 1.6 9 1.6c1.7 0 3.4.8 4.5 2.1c1.1-1.3 2.8-2.1 4.5-2.1c3.1 0 5.5 2.4 5.5 5.5c0 3.8-3.4 6.9-10 12.9M12 21.1C5.4 15.2 1.5 11.7 1.5 7v-.6c-.6.9-1 2-1 3.2c0 3.8 3.4 6.9 10 12.8z"
-                  stroke-width="0.5"
-                  stroke="currentColor"
-                />
+            {/* --- BEARBEITEN-BUTTON ENTFERNT --- */}
+            
+            <button
+              onClick={handleLike}
+              className={`flex items-center gap-1 text-sm font-bold transition px-3 py-2 rounded-lg ${
+                hasLiked
+                  ? "text-red-400 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30" 
+                  : "text-gray-400 hover:text-red-400 hover:bg-gray-700/50 border border-transparent"
+              }`}
+              disabled={hasLiked}
+              title={hasLiked ? "Bereits geliked" : "Gefällt mir"}
+            >
+              <Heart className="w-5 h-5" fill={hasLiked ? "currentColor" : "none"} strokeWidth={hasLiked ? 0 : 1.5} />
+              {localLikeCount}
+            </button>
+            <button
+              onClick={handleToggleSave}
+              className={`flex items-center gap-1 text-sm font-bold transition px-3 py-2 rounded-lg ${
+                !userId || isOwnComponent
+                  ? "text-gray-500 bg-gray-800/30 border border-gray-700/30 cursor-not-allowed opacity-50"
+                  : localIsSaved 
+                    ? "text-blue-400 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30" 
+                    : "text-gray-400 hover:text-blue-400 hover:bg-gray-700/50 border border-transparent"
+              }`}
+              disabled={!userId || isOwnComponent}
+              title={
+                isOwnComponent 
+                  ? "Eigene Komponenten können nicht gespeichert werden" 
+                  : !userId
+                    ? "Anmelden zum Speichern"
+                    : localIsSaved 
+                      ? "Entfernen" 
+                      : "Speichern"
+              }
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
               </svg>
-              {latestComponent.saveCount || 0}
-            </p>
-            <p className="flex items-center gap-1 text-sm font-bold text-blue-900">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                className="w-5 h-5"
-              >
-                <rect width="24" height="24" fill="none" />
-                <path
-                  fill="currentColor"
-                  d="M4 7H2v14c0 1.1.9 2 2 2h14v-2H4M20 3h-3.2c-.4-1.2-1.5-2-2.8-2s-2.4.8-2.8 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-6 0c.6 0 1 .5 1 1s-.5 1-1 1s-1-.5-1-1s.4-1 1-1m-1.7 12.1L9 11.8l1.4-1.4l1.9 1.9L17.6 7L19 8.4"
-                  stroke-width="0.5"
-                  stroke="currentColor"
-                />
-              </svg>
-              {latestComponent.copyCount || 0}
-            </p>
-            {handleTogglePublish && (
+              {selectedComponent.saveCount || 0}
+            </button>
+            {isOwnComponent && (
               <button
-                onClick={() => handleTogglePublish(selectedComponent._id)}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  if (!userId || !componentId || !setSelectedComponent) return;
+                  if (!confirm("Möchtest du diese Komponente wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.")) return;
+                  try {
+                    await deleteComponent({ componentId, userId: userId as any });
+                    closePanel();
+                    // Refresh the page to update the component list
+                    window.location.reload();
+                  } catch (err) {
+                    console.error("Delete failed", err);
+                    alert("Fehler beim Löschen der Komponente");
+                  }
+                }}
+                className="flex items-center gap-1 text-sm font-bold transition px-3 py-2 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50"
+                title="Komponente löschen"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            )}
+            {handleTogglePublish && isOwnComponent && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleTogglePublish(selectedComponent._id);
+                }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                  latestComponent?.published
-                    ? "bg-gray-300 text-black hover:bg-gray-400"
-                    : "bg-green-600 text-white hover:bg-green-500"
+                  selectedComponent?.published
+                    ? "bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600"
+                    : "bg-linear-to-r from-purple-600 to-purple-700 text-white hover:from-purple-500 hover:to-purple-600 border border-purple-500/50"
                 }`}
               >
-                {latestComponent?.published ? "Unpublish" : "Publish"}
+                {selectedComponent?.published ? "Veröffentlichung aufheben" : "Veröffentlichen"}
               </button>
             )}
             <button
               onClick={closePanel}
               className="text-gray-400 hover:text-white hover:bg-gray-700/50 p-2 rounded-lg transition-colors text-xl font-bold"
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
+        
+        {/* KEINE bedingte Anzeige für showEditPage mehr, direkt ComponentDetail anzeigen */}
         <ComponentDetail
-          component={componentWithUser}
-          onToggleSave={isOwnComponent ? undefined : handleToggleSave}
-          isSaved={localIsSaved}
-          userId={userId}
-          onCopyComponent={isOwnComponent ? undefined : handleCopyComponent}
+          component={selectedComponent}
           getLanguageBadgeColor={getLanguageBadgeColor}
+          showPublishButton={!!handleTogglePublish}
+          onTogglePublish={handleTogglePublish}
         />
       </div>
     </>

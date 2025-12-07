@@ -165,8 +165,28 @@ export default function DashboardLayout({
         {/* Top Bar */}
         <header className="sticky top-0 z-10 bg-gray-800/80 backdrop-blur-md border-b border-purple-800/30 shadow-lg shadow-black/20">
           <div className="flex items-center justify-between px-8 h-16">
-            <div className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-purple-300 to-purple-400 font-bold text-xl">
-              OpenUI
+            <div className="flex items-center gap-4">
+              {!isOwnProfile && (
+                <button
+                  onClick={() => {
+                    const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
+                    if (userId) {
+                      window.location.href = `/u/${userId}`;
+                    } else {
+                      window.location.href = `/u`;
+                    }
+                  }}
+                  className="flex items-center gap-2 text-sm text-gray-300 hover:text-white px-4 py-2 rounded-lg hover:bg-gray-700/50 transition-all duration-200 cursor-pointer border border-transparent hover:border-purple-800/50"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  Zurück
+                </button>
+              )}
+              <div className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-purple-300 to-purple-400 font-bold text-xl">
+                OpenUI
+              </div>
             </div>
             {isOwnProfile ? (
               <div className="flex items-center gap-4">

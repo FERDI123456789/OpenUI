@@ -22,9 +22,11 @@ export default function App({ profileId }: { profileId?: string }) {
   const [showCreatePage, setShowCreatePage] = React.useState(false);
   const [newComponent, setNewComponent] = React.useState({
     name: "",
+    description: "",
     language: "html",
     css: "",
     code: "<div class='p-6 text-center'>Start building your component...</div>",
+    javascript: "",
   });
 
   const createComponent = useMutation(api.components.createComponent);
@@ -70,12 +72,10 @@ export default function App({ profileId }: { profileId?: string }) {
     switch (lang) {
       case "html":
         return "bg-orange-500/20 text-orange-400 border-orange-500/30";
-      case "jsx":
+      case "css":
         return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-      case "vue":
-        return "bg-green-500/20 text-green-400 border-green-500/30";
-      case "astro":
-        return "bg-purple-500/20 text-purple-400 border-purple-500/30";
+      case "javascript":
+        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
       default:
         return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
@@ -107,10 +107,19 @@ export default function App({ profileId }: { profileId?: string }) {
     if (e) e.preventDefault();
     if (!userId) return;
 
+    // Combine CSS and JavaScript into CSS field if both exist
+    let combinedCss = newComponent.css || "";
+    if (newComponent.javascript) {
+      combinedCss = combinedCss 
+        ? `${combinedCss}\n\n<script>\n${newComponent.javascript}\n</script>`
+        : `<script>\n${newComponent.javascript}\n</script>`;
+    }
+
     createComponent({
       name: newComponent.name,
-      language: newComponent.language as "html" | "jsx" | "vue" | "astro",
-      css: newComponent.css || undefined,
+      description: newComponent.description || undefined,
+      language: newComponent.language as "html" | "css" | "javascript",
+      css: combinedCss || undefined,
       code: newComponent.code,
       userId: userId as any,
     });
@@ -118,14 +127,16 @@ export default function App({ profileId }: { profileId?: string }) {
     setShowCreatePage(false);
     setNewComponent({
       name: "",
+      description: "",
       language: "html",
       css: "",
       code: "<div class='p-6 text-center'>Start building your component...</div>",
+      javascript: "",
     });
   };
 
   const handleNewComponentChange = (
-    field: "name" | "language" | "css" | "code",
+    field: "name" | "description" | "language" | "css" | "code" | "javascript",
     value: string
   ) => setNewComponent((prev) => ({ ...prev, [field]: value }));
 
@@ -159,9 +170,11 @@ export default function App({ profileId }: { profileId?: string }) {
               setShowCreatePage(true);
               setNewComponent({
                 name: "",
+                description: "",
                 language: "html",
                 css: "",
                 code: "<div class='p-6 text-center'>Start building your component...</div>",
+                javascript: "",
               });
             },
           })}
