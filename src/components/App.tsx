@@ -151,10 +151,12 @@ export default function App({ profileId }: { profileId?: string }) {
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         onLogout={() => {
-          localStorage.removeItem("userId");
-          setUserId(null);
-          setUsername("");
-          window.location.href = "/";
+          if (typeof window !== "undefined") {
+            localStorage.clear();
+            setUserId(null);
+            setUsername("");
+            requestAnimationFrame(() => (window.location.href = "/"));
+          }
         }}
         topRightExtra={null}
       >
