@@ -1,17 +1,24 @@
 import React, { useState } from "react";
 // Lucide Icons: Imports sind OK
-import { Eye, Code, Smartphone, Monitor, Copy as CopyIcon, Check } from "lucide-react"; 
+import {
+  Eye,
+  Code,
+  Smartphone,
+  Monitor,
+  Copy as CopyIcon,
+  Check,
+} from "lucide-react";
 
-// 🚀 KORREKTUR: Syntax Highlighter Imports für maximale Kompatibilität 
+// 🚀 KORREKTUR: Syntax Highlighter Imports für maximale Kompatibilität
 // (Wenn die Neuinstallation fehlschlägt, ist dies oft die Lösung)
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism/vsc-dark-plus"; 
+import vscDarkPlus from "react-syntax-highlighter/dist/cjs/styles/prism/vsc-dark-plus";
 
 import ComponentRenderer from "./ComponentRender"; // Assuming this is your renderer
 
 // Definiere einen minimalen Typ für die Komponente, um Typsicherheit zu gewährleisten
 interface Component {
-  _id: string; 
+  _id: string;
   name: string;
   description?: string;
   language: "html" | "css" | "javascript" | string;
@@ -31,14 +38,16 @@ export default function ComponentDetail({
   getLanguageBadgeColor,
   onTogglePublish,
 }: {
-  component: Component; 
+  component: Component;
   getLanguageBadgeColor: (lang: string) => string;
-  showPublishButton?: boolean; 
+  showPublishButton?: boolean;
   onTogglePublish?: (componentId: string) => void;
 }) {
-  const [viewportMode, setViewportMode] = useState<"mobile" | "desktop">("desktop");
+  const [viewportMode, setViewportMode] = useState<"mobile" | "desktop">(
+    "desktop"
+  );
   const [viewMode, setViewMode] = useState<"preview" | "code">("preview");
-  
+
   // Kombinierter State für die Copy-Funktion
   const [codeCopyStatus, setCodeCopyStatus] = useState<CopyState>("idle");
   const [cssCopyStatus, setCssCopyStatus] = useState<CopyState>("idle");
@@ -48,14 +57,14 @@ export default function ComponentDetail({
     if (!text) return;
 
     const setStatus = type === "code" ? setCodeCopyStatus : setCssCopyStatus;
-    
+
     try {
       await navigator.clipboard.writeText(text);
       setStatus("copied");
       setTimeout(() => setStatus("idle"), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
-      setStatus("idle"); 
+      setStatus("idle");
     }
   };
 
@@ -73,27 +82,35 @@ export default function ComponentDetail({
   if (scriptMatch) {
     componentJs = scriptMatch[1].trim();
     // Entferne JavaScript-Teile aus dem CSS-Code für die Code-Anzeige
-    componentCss = componentCss.replace(/<script>[\s\S]*?<\/script>/, "").trim();
+    componentCss = componentCss
+      .replace(/<script>[\s\S]*?<\/script>/, "")
+      .trim();
   }
-  
+
   // Bestimme die Sprache des Hauptcodes
   let mainCodeLanguage = getLanguageForSyntaxHighlighter(component.language);
-  if (mainCodeLanguage === 'html' && component.code.startsWith('<')) {
-      // Wenn der Code mit '<' beginnt, ist es wahrscheinlich HTML/JSX
+  if (mainCodeLanguage === "html" && component.code.startsWith("<")) {
+    // Wenn der Code mit '<' beginnt, ist es wahrscheinlich HTML/JSX
   }
-  
+
   return (
-    <div 
+    <div
       className="p-6 overflow-y-auto h-full bg-transparent component-panel"
-      style={{
-        // animation: 'fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1), slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
-      }}
+      style={
+        {
+          // animation: 'fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1), slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+        }
+      }
     >
       <div className="mb-4 space-y-2">
         {component.description && (
           <div className="mb-4 p-4 bg-gray-800/50 border border-purple-800/30 rounded-xl">
-            <h3 className="text-sm font-semibold text-purple-300 mb-2">Beschreibung</h3>
-            <p className="text-sm text-gray-300 leading-relaxed">{component.description}</p>
+            <h3 className="text-sm font-semibold text-purple-300 mb-2">
+              Beschreibung
+            </h3>
+            <p className="text-sm text-gray-300 leading-relaxed">
+              {component.description}
+            </p>
           </div>
         )}
         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -106,13 +123,20 @@ export default function ComponentDetail({
               {component.language.toUpperCase()}
             </span>
             {/* Defensive Checks für user und username */}
-            {component.user?.username && component.userId && ( 
+            {component.user?.username && component.userId && (
               <p className="text-xs text-gray-400">
-                von <a href={`/u/${component.userId}`} className="text-purple-400 font-medium hover:text-purple-300 hover:underline transition-colors" onClick={(e) => e.stopPropagation()}>{component.user.username}</a>
+                von{" "}
+                <a
+                  href={`/u/${component.userId}`}
+                  className="text-purple-400 font-medium hover:text-purple-300 hover:underline transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {component.user.username}
+                </a>
               </p>
             )}
           </div>
-          
+
           {/* View Mode Toggle */}
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 bg-gray-800/40 backdrop-blur-sm border border-purple-800/30 rounded-xl p-1">
@@ -139,7 +163,7 @@ export default function ComponentDetail({
                 <Code className="w-5 h-5" />
               </button>
             </div>
-            
+
             {viewMode === "preview" && (
               <div className="flex items-center gap-2 bg-gray-800/40 backdrop-blur-sm border border-purple-800/30 rounded-xl p-1">
                 <button
@@ -169,11 +193,15 @@ export default function ComponentDetail({
           </div>
         </div>
       </div>
-      
+
       {viewMode === "preview" ? (
-        <div className={`mt-4 border border-purple-800/30 rounded-xl overflow-hidden bg-gray-900/40 shadow-inner transition-all duration-300 flex items-center justify-center ${
-          viewportMode === "mobile" ? "max-w-[600px] mx-auto h-[900px] relative" : "h-[600px] w-full"
-        }`}>
+        <div
+          className={`mt-4 border border-purple-800/30 rounded-xl overflow-hidden bg-gray-900/40 shadow-inner transition-all duration-300 flex items-center justify-center ${
+            viewportMode === "mobile"
+              ? "max-w-[600px] mx-auto h-[900px] relative"
+              : "h-[600px] w-full"
+          }`}
+        >
           {viewportMode === "mobile" && (
             <div className="absolute inset-0 pointer-events-none z-10">
               {/* Phone Frame */}
@@ -181,13 +209,17 @@ export default function ComponentDetail({
               <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-48 h-2 bg-gray-700 rounded-t-lg"></div>
             </div>
           )}
-          <div className={`w-full h-full transition-all duration-300 ${
-            viewportMode === "mobile" ? "rounded-[2.5rem] scale-125 origin-top" : ""
-          }`}>
+          <div
+            className={`w-full h-full transition-all duration-300 ${
+              viewportMode === "mobile"
+                ? "rounded-[2.5rem] scale-125 origin-top"
+                : ""
+            }`}
+          >
             <ComponentRenderer
               // Verwende den vollständigen CSS-String mit JS-Tags für den Renderer
-              code={component.code} 
-              css={component.css} 
+              code={component.code}
+              css={component.css}
               language={component.language}
               viewportMode={viewportMode}
             />
@@ -197,10 +229,12 @@ export default function ComponentDetail({
         <div className="mt-4 border border-purple-800/30 rounded-xl overflow-hidden bg-gray-900/40 shadow-inner">
           <div className="p-4 bg-gray-800/50 border-b border-purple-800/30">
             <div className="flex items-center gap-2 mb-2">
-              <span className={`inline-flex px-3 py-1.5 rounded-lg text-xs font-semibold border ${getLanguageBadgeColor(component.language)}`}>
+              <span
+                className={`inline-flex px-3 py-1.5 rounded-lg text-xs font-semibold border ${getLanguageBadgeColor(component.language)}`}
+              >
                 {component.language.toUpperCase()}
               </span>
-              {(component.css) && ( // Prüfe, ob CSS vorhanden ist
+              {component.css && ( // Prüfe, ob CSS vorhanden ist
                 <span className="inline-flex px-3 py-1.5 rounded-lg text-xs font-semibold border bg-pink-500/20 text-pink-400 border-pink-500/30">
                   CSS/JS
                 </span>
@@ -209,7 +243,7 @@ export default function ComponentDetail({
           </div>
           <div className="p-4 space-y-4 max-h-[600px] overflow-y-auto">
             {/* --- CSS/JS-CODE-BLOCK --- */}
-            {(component.css) && (
+            {component.css && (
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-semibold text-purple-300 flex items-center gap-2">
@@ -250,7 +284,7 @@ export default function ComponentDetail({
                 </div>
               </div>
             )}
-            
+
             {/* --- HAUPTCODE-BLOCK (HTML/JSX) --- */}
             <div>
               <div className="flex items-center justify-between mb-2">

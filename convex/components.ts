@@ -266,7 +266,7 @@ export const likeComponent = mutation({
     if (!component) {
       throw new Error("Component not found");
     }
-    
+
     // Check if already liked
     let existing;
     if (userId) {
@@ -284,11 +284,11 @@ export const likeComponent = mutation({
         )
         .first();
     }
-    
+
     if (existing && existing.active) {
       return { success: false, message: "Already liked" };
     }
-    
+
     if (!existing) {
       await ctx.db.insert("likes", {
         userId: userId || undefined,
@@ -305,7 +305,7 @@ export const likeComponent = mutation({
         likeCount: (component.likeCount || 0) + 1,
       });
     }
-    
+
     return { success: true, likeCount: (component.likeCount || 0) + 1 };
   },
 });
@@ -459,15 +459,16 @@ export const updateComponent = mutation({
     userId: v.id("users"),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
-    language: v.optional(v.union(
-      v.literal("html"),
-      v.literal("css"),
-      v.literal("javascript")
-    )),
+    language: v.optional(
+      v.union(v.literal("html"), v.literal("css"), v.literal("javascript"))
+    ),
     css: v.optional(v.string()),
     code: v.optional(v.string()),
   },
-  handler: async (ctx, { componentId, userId, name, description, language, css, code }) => {
+  handler: async (
+    ctx,
+    { componentId, userId, name, description, language, css, code }
+  ) => {
     const component = await ctx.db.get(componentId);
     if (!component) {
       throw new Error("Component not found");
@@ -502,14 +503,20 @@ export const deleteComponent = mutation({
     // Delete all saves, copies, and likes related to this component
     const saves = await ctx.db
       .query("saves")
-      .withIndex("by_user_component", (q) => q.eq("componentId", componentId))
+      .withIndex("by_user_component", (q) =>
+        q.eq("userId", userId).eq("componentId", componentId)
+      )
+
       .collect();
     for (const save of saves) {
       await ctx.db.delete(save._id);
     }
     const copies = await ctx.db
       .query("copies")
-      .withIndex("by_user_component", (q) => q.eq("componentId", componentId))
+      .withIndex("by_user_component", (q) =>
+        q.eq("userId", userId).eq("componentId", componentId)
+      )
+
       .collect();
     for (const copy of copies) {
       await ctx.db.delete(copy._id);

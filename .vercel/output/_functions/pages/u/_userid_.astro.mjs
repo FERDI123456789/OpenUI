@@ -1,11 +1,12 @@
 import { e as createComponent, f as createAstro, k as renderComponent, r as renderTemplate } from '../../chunks/astro/server_LM7goxkt.mjs';
 import 'piccolore';
-import { a as api, $ as $$Layout } from '../../chunks/Layout_oN0H7uQz.mjs';
+import { $ as $$Layout } from '../../chunks/Layout_3ZPWPviJ.mjs';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import React, { useState, useEffect, useRef } from 'react';
 import { useMutation, useQuery, ConvexReactClient, ConvexProvider } from 'convex/react';
+import { a as api } from '../../chunks/api__xwehwR1.mjs';
 import * as jdenticon from 'jdenticon';
-import { C as ComponentRenderer, a as ComponentPanel } from '../../chunks/ComponentPanel_DnvNnCRo.mjs';
+import { C as ComponentRenderer, a as ComponentPanel } from '../../chunks/ComponentPanel_CzfS3oCB.mjs';
 export { renderers } from '../../renderers.mjs';
 
 function DashboardLayout({
@@ -155,7 +156,27 @@ function DashboardLayout({
     ] }),
     /* @__PURE__ */ jsxs("div", { className: "ml-64", children: [
       /* @__PURE__ */ jsx("header", { className: "sticky top-0 z-10 bg-gray-800/80 backdrop-blur-md border-b border-purple-800/30 shadow-lg shadow-black/20", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between px-8 h-16", children: [
-        /* @__PURE__ */ jsx("div", { className: "text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-purple-300 to-purple-400 font-bold text-xl", children: "OpenUI" }),
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4", children: [
+          !isOwnProfile && /* @__PURE__ */ jsxs(
+            "button",
+            {
+              onClick: () => {
+                const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
+                if (userId) {
+                  window.location.href = `/u/${userId}`;
+                } else {
+                  window.location.href = `/u`;
+                }
+              },
+              className: "flex items-center gap-2 text-sm text-gray-300 hover:text-white px-4 py-2 rounded-lg hover:bg-gray-700/50 transition-all duration-200 cursor-pointer border border-transparent hover:border-purple-800/50",
+              children: [
+                /* @__PURE__ */ jsx("svg", { className: "w-4 h-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M10 19l-7-7m0 0l7-7m-7 7h18" }) }),
+                "Zurück"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsx("div", { className: "text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-purple-300 to-purple-400 font-bold text-xl", children: "OpenUI" })
+        ] }),
         isOwnProfile ? /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4", children: [
           /* @__PURE__ */ jsx("div", { className: "flex items-center gap-3", children: /* @__PURE__ */ jsx(
             "button",
@@ -366,9 +387,13 @@ function ComponentsView({
       ComponentPanel,
       {
         selectedComponent,
+        setSelectedComponent,
         onClose: closePanel,
         getLanguageBadgeColor,
-        handleTogglePublish
+        handleTogglePublish,
+        onComponentUpdate: (updatedComponent) => {
+          setSelectedComponent(updatedComponent);
+        }
       }
     )
   ] });
@@ -381,6 +406,7 @@ function CreateComponentPage({
   onCancel,
   getLanguageBadgeColor
 }) {
+  const [activeTab, setActiveTab] = React.useState("html");
   return /* @__PURE__ */ jsxs("div", { className: "fixed inset-0 bg-gray-900 z-40 overflow-y-auto text-gray-100", children: [
     /* @__PURE__ */ jsxs("div", { className: "absolute inset-0 -z-10", children: [
       /* @__PURE__ */ jsx("div", { className: "absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl" }),
@@ -430,43 +456,73 @@ function CreateComponentPage({
             )
           ] }),
           /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-300 mb-2", children: "Sprache" }),
-            /* @__PURE__ */ jsxs(
-              "select",
-              {
-                value: newComponent.language,
-                onChange: (e) => onChange("language", e.target.value),
-                className: "w-full px-4 py-3 text-white bg-gray-800/60 backdrop-blur-sm border border-purple-800/30 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none transition-all hover:border-purple-700/50",
-                children: [
-                  /* @__PURE__ */ jsx("option", { className: "text-orange-100 bg-orange-800", value: "html", children: "HTML" }),
-                  /* @__PURE__ */ jsx("option", { className: "text-blue-100 bg-blue-800", value: "jsx", children: "JSX" }),
-                  /* @__PURE__ */ jsx("option", { className: "text-green-100 bg-green-800", value: "vue", children: "Vue" }),
-                  /* @__PURE__ */ jsx("option", { className: "text-purple-100 bg-purple-800", value: "astro", children: "Astro" })
-                ]
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-300 mb-2", children: "CSS (optional)" }),
+            /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-300 mb-2", children: "Beschreibung (optional)" }),
             /* @__PURE__ */ jsx(
               "textarea",
               {
-                value: newComponent.css,
-                onChange: (e) => onChange("css", e.target.value),
-                placeholder: ".card { background: white; }",
-                className: "w-full px-4 py-3 text-white bg-gray-800/60 backdrop-blur-sm border border-purple-800/30 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none min-h-28 font-mono text-sm transition-all hover:border-purple-700/50 resize-y"
+                value: newComponent.description,
+                onChange: (e) => onChange("description", e.target.value),
+                placeholder: "Beschreibe, wofür diese Komponente verwendet wird...",
+                className: "w-full px-4 py-3 text-white bg-gray-800/60 backdrop-blur-sm border border-purple-800/30 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none min-h-24 transition-all hover:border-purple-700/50 resize-y"
               }
             )
           ] }),
           /* @__PURE__ */ jsxs("div", { children: [
             /* @__PURE__ */ jsx("label", { className: "block text-sm font-medium text-gray-300 mb-2", children: "Code" }),
-            /* @__PURE__ */ jsx(
+            /* @__PURE__ */ jsxs("div", { className: "flex gap-2 mb-2 bg-gray-800/40 backdrop-blur-sm border border-purple-800/30 rounded-xl p-1", children: [
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setActiveTab("html"),
+                  className: `flex-1 px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === "html" ? "bg-purple-600/30 text-purple-300" : "text-gray-400 hover:text-white"}`,
+                  children: "HTML (Pflicht)"
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setActiveTab("css"),
+                  className: `flex-1 px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === "css" ? "bg-purple-600/30 text-purple-300" : "text-gray-400 hover:text-white"}`,
+                  children: "CSS (Optional)"
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setActiveTab("javascript"),
+                  className: `flex-1 px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === "javascript" ? "bg-purple-600/30 text-purple-300" : "text-gray-400 hover:text-white"}`,
+                  children: "JavaScript (Optional)"
+                }
+              )
+            ] }),
+            activeTab === "html" && /* @__PURE__ */ jsx(
               "textarea",
               {
                 value: newComponent.code,
                 onChange: (e) => onChange("code", e.target.value),
                 placeholder: "<section>...</section>",
                 required: true,
+                className: "w-full px-4 py-3 text-white bg-gray-800/60 backdrop-blur-sm border border-purple-800/30 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none min-h-60 font-mono text-sm transition-all hover:border-purple-700/50 resize-y"
+              }
+            ),
+            activeTab === "css" && /* @__PURE__ */ jsx(
+              "textarea",
+              {
+                value: newComponent.css,
+                onChange: (e) => onChange("css", e.target.value),
+                placeholder: ".card { background: white; }",
+                className: "w-full px-4 py-3 text-white bg-gray-800/60 backdrop-blur-sm border border-purple-800/30 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none min-h-60 font-mono text-sm transition-all hover:border-purple-700/50 resize-y"
+              }
+            ),
+            activeTab === "javascript" && /* @__PURE__ */ jsx(
+              "textarea",
+              {
+                value: newComponent.javascript,
+                onChange: (e) => onChange("javascript", e.target.value),
+                placeholder: "// JavaScript Code",
                 className: "w-full px-4 py-3 text-white bg-gray-800/60 backdrop-blur-sm border border-purple-800/30 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none min-h-60 font-mono text-sm transition-all hover:border-purple-700/50 resize-y"
               }
             ),
@@ -517,8 +573,9 @@ function CreateComponentPage({
           ComponentRenderer,
           {
             code: newComponent.code,
-            language: newComponent.language,
-            css: newComponent.css
+            language: "html",
+            css: newComponent.css,
+            javascript: newComponent.javascript
           }
         ) })
       ] }) })
@@ -540,9 +597,11 @@ function App({ profileId }) {
   const [showCreatePage, setShowCreatePage] = React.useState(false);
   const [newComponent, setNewComponent] = React.useState({
     name: "",
+    description: "",
     language: "html",
     css: "",
-    code: "<div class='p-6 text-center'>Start building your component...</div>"
+    code: "<div class='p-6 text-center'>Start building your component...</div>",
+    javascript: ""
   });
   const createComponent = useMutation(api.components.createComponent);
   useMutation(api.components.saveComponent);
@@ -583,12 +642,10 @@ function App({ profileId }) {
     switch (lang) {
       case "html":
         return "bg-orange-500/20 text-orange-400 border-orange-500/30";
-      case "jsx":
+      case "css":
         return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-      case "vue":
-        return "bg-green-500/20 text-green-400 border-green-500/30";
-      case "astro":
-        return "bg-purple-500/20 text-purple-400 border-purple-500/30";
+      case "javascript":
+        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
       default:
         return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
@@ -613,19 +670,32 @@ function App({ profileId }) {
   const handleCreateSubmit = (e) => {
     if (e) e.preventDefault();
     if (!userId) return;
+    let combinedCss = newComponent.css || "";
+    if (newComponent.javascript) {
+      combinedCss = combinedCss ? `${combinedCss}
+
+<script>
+${newComponent.javascript}
+<\/script>` : `<script>
+${newComponent.javascript}
+<\/script>`;
+    }
     createComponent({
       name: newComponent.name,
+      description: newComponent.description || void 0,
       language: newComponent.language,
-      css: newComponent.css || void 0,
+      css: combinedCss || void 0,
       code: newComponent.code,
       userId
     });
     setShowCreatePage(false);
     setNewComponent({
       name: "",
+      description: "",
       language: "html",
       css: "",
-      code: "<div class='p-6 text-center'>Start building your component...</div>"
+      code: "<div class='p-6 text-center'>Start building your component...</div>",
+      javascript: ""
     });
   };
   const handleNewComponentChange = (field, value) => setNewComponent((prev) => ({ ...prev, [field]: value }));
@@ -662,9 +732,11 @@ function App({ profileId }) {
                 setShowCreatePage(true);
                 setNewComponent({
                   name: "",
+                  description: "",
                   language: "html",
                   css: "",
-                  code: "<div class='p-6 text-center'>Start building your component...</div>"
+                  code: "<div class='p-6 text-center'>Start building your component...</div>",
+                  javascript: ""
                 });
               }
             },
@@ -696,7 +768,7 @@ function Main({ userId }) {
   const initializedRef = useRef(false);
   useEffect(() => {
     if (!initializedRef.current) {
-      const convex = new ConvexReactClient("https://grateful-dodo-887.convex.cloud");
+      const convex = new ConvexReactClient("https://friendly-labrador-327.convex.cloud");
       setClient(convex);
       initializedRef.current = true;
     }

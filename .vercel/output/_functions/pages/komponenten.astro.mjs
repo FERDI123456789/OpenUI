@@ -1,12 +1,135 @@
 import { e as createComponent, k as renderComponent, r as renderTemplate } from '../chunks/astro/server_LM7goxkt.mjs';
 import 'piccolore';
-import { N as NavbarWrapper } from '../chunks/Navbar_4ZcT63VY.mjs';
-import { jsx, jsxs } from 'react/jsx-runtime';
-import { useState, useMemo, useRef, useEffect } from 'react';
-import { useQuery, ConvexReactClient, ConvexProvider } from 'convex/react';
-import { a as api, $ as $$Layout } from '../chunks/Layout_oN0H7uQz.mjs';
-import { C as ComponentRenderer, a as ComponentPanel } from '../chunks/ComponentPanel_DnvNnCRo.mjs';
+import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { ConvexReactClient, ConvexProvider, useQuery } from 'convex/react';
+import { a as api } from '../chunks/api__xwehwR1.mjs';
+import { C as ComponentRenderer, a as ComponentPanel } from '../chunks/ComponentPanel_CzfS3oCB.mjs';
+import { $ as $$Layout } from '../chunks/Layout_3ZPWPviJ.mjs';
 export { renderers } from '../renderers.mjs';
+
+const navItems = [];
+const MenuIconPlaceholder = () => /* @__PURE__ */ jsx("span", { className: "text-xl", children: "☰" });
+const XIconPlaceholder = () => /* @__PURE__ */ jsx("span", { className: "text-xl", children: "✕" });
+function NavbarWrapper() {
+  const [client, setClient] = useState(null);
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!initializedRef.current) {
+      const convex = new ConvexReactClient("https://friendly-labrador-327.convex.cloud");
+      setClient(convex);
+      initializedRef.current = true;
+    }
+  }, []);
+  if (!client) return null;
+  return /* @__PURE__ */ jsx(ConvexProvider, { client, children: /* @__PURE__ */ jsx(Navbar, {}) });
+}
+function Navbar({}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [userId, setUserId] = useState(null);
+  useEffect(() => {
+    const id = localStorage.getItem("userId");
+    setUserId(id);
+  }, []);
+  const toggleMenu = () => setIsOpen(!isOpen);
+  return /* @__PURE__ */ jsx("header", { className: "fixed top-0 left-0 w-full z-50 bg-gray-900/90 backdrop-blur-md border-b border-purple-800/30", children: /* @__PURE__ */ jsxs("nav", { className: "max-w-7xl mx-auto px-6 lg:px-8", children: [
+    /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between h-20", children: [
+      /* @__PURE__ */ jsx("div", { className: "shrink-0", children: /* @__PURE__ */ jsx(
+        "a",
+        {
+          href: "/",
+          className: "text-2xl font-bold text-purple-400 hover:text-purple-300 transition-colors duration-300",
+          children: "OpenUI"
+        }
+      ) }),
+      /* @__PURE__ */ jsxs("div", { className: "hidden md:flex items-center gap-6", children: [
+        navItems.map((item) => /* @__PURE__ */ jsx(
+          "a",
+          {
+            href: item.href,
+            className: "text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors duration-300 rounded-md hover:bg-purple-900/20",
+            children: item.name
+          },
+          item.name
+        )),
+        userId ? /* @__PURE__ */ jsx(
+          "a",
+          {
+            href: `/u`,
+            className: "bg-purple-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-purple-500 transition-all duration-300 text-sm shadow-lg shadow-purple-500/30",
+            children: "Dashboard"
+          }
+        ) : /* @__PURE__ */ jsxs(Fragment, { children: [
+          /* @__PURE__ */ jsx(
+            "a",
+            {
+              href: `/u`,
+              className: "text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors duration-300 rounded-md hover:bg-purple-900/20",
+              children: "Anmelden"
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            "a",
+            {
+              href: `/u`,
+              className: "bg-purple-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-purple-500 transition-all duration-300 text-sm shadow-lg shadow-purple-500/30",
+              children: "Registrieren"
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsx("div", { className: "md:hidden", children: /* @__PURE__ */ jsx(
+        "button",
+        {
+          onClick: toggleMenu,
+          className: "text-gray-300 hover:text-purple-400 p-2 rounded-md transition-colors duration-300",
+          "aria-label": "Toggle menu",
+          children: isOpen ? /* @__PURE__ */ jsx(XIconPlaceholder, {}) : /* @__PURE__ */ jsx(MenuIconPlaceholder, {})
+        }
+      ) })
+    ] }),
+    isOpen && /* @__PURE__ */ jsx("div", { className: "md:hidden pb-4 border-t border-purple-800/30 mt-2 pt-4", children: /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-2", children: [
+      navItems.map((item) => /* @__PURE__ */ jsx(
+        "a",
+        {
+          href: item.href,
+          onClick: toggleMenu,
+          className: "text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors duration-300 rounded-md hover:bg-purple-900/20",
+          children: item.name
+        },
+        item.name
+      )),
+      userId ? /* @__PURE__ */ jsx(
+        "a",
+        {
+          href: `/u`,
+          onClick: toggleMenu,
+          className: "bg-purple-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-purple-500 transition-all duration-300 text-sm shadow-lg shadow-purple-500/30 mt-2 text-center",
+          children: "Dashboard"
+        }
+      ) : /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx(
+          "a",
+          {
+            href: `/u`,
+            onClick: toggleMenu,
+            className: "text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors duration-300 rounded-md hover:bg-purple-900/20 text-left",
+            children: "Log In"
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          "a",
+          {
+            href: `/u`,
+            onClick: toggleMenu,
+            className: "bg-purple-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-purple-500 transition-all duration-300 text-sm shadow-lg shadow-purple-500/30 mt-2 text-center",
+            children: "Sign Up"
+          }
+        )
+      ] })
+    ] }) })
+  ] }) });
+}
 
 function PublicComponentsList() {
   const publicComponents = useQuery(api.components.getPublicComponents);
@@ -32,12 +155,10 @@ function PublicComponentsList() {
     switch (lang) {
       case "html":
         return "bg-orange-100 text-orange-800";
-      case "jsx":
+      case "css":
         return "bg-blue-100 text-blue-800";
-      case "vue":
-        return "bg-green-100 text-green-800";
-      case "astro":
-        return "bg-purple-100 text-purple-800";
+      case "javascript":
+        return "bg-yellow-100 text-yellow-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -178,8 +299,12 @@ function PublicComponentsList() {
       ComponentPanel,
       {
         selectedComponent,
+        setSelectedComponent,
         onClose: () => setSelectedComponent(null),
-        getLanguageBadgeColor
+        getLanguageBadgeColor,
+        onComponentUpdate: (updatedComponent) => {
+          setSelectedComponent(updatedComponent);
+        }
       }
     )
   ] });
@@ -190,7 +315,7 @@ function PubKompWrapper() {
   const initializedRef = useRef(false);
   useEffect(() => {
     if (!initializedRef.current) {
-      const convex = new ConvexReactClient("https://grateful-dodo-887.convex.cloud");
+      const convex = new ConvexReactClient("https://friendly-labrador-327.convex.cloud");
       setClient(convex);
       initializedRef.current = true;
     }
