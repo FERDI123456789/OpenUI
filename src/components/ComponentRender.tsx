@@ -140,10 +140,8 @@ export function ComponentRenderer({
     <iframe
       ref={iframeRef}
       sandbox="allow-scripts allow-same-origin"
-      className="w-full border-0 bg-white"
+      className="w-full h-full border-0 bg-white"
       style={{
-        minHeight: viewportMode === "mobile" ? "667px" : "600px",
-        height: viewportMode === "mobile" ? "667px" : "600px",
         maxWidth: viewportMode === "mobile" ? "375px" : "100%",
         margin: viewportMode === "mobile" ? "0 auto" : "0",
       }}

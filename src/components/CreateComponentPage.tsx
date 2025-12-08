@@ -36,8 +36,12 @@ export default function CreateComponentPage({
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 mx-auto px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="relative z-10 mx-auto px-8 py-8 min-h-full">
+        {" "}
+        {/* Added min-h-full to propagate height */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
+          {" "}
+          {/* Added h-full to make grid fill */}
           {/* Left Column - Form */}
           <div className="lg:col-span-1 space-y-6">
             <div>
@@ -179,11 +183,16 @@ export default function CreateComponentPage({
               </div>
             </form>
           </div>
-
           {/* Right Column - Live Preview */}
-          <div className="lg:col-span-2">
-            <div className="bg-gray-800/40 backdrop-blur-sm border border-purple-800/30 rounded-2xl p-6 shadow-xl">
-              <div className="flex items-center justify-between mb-5">
+          <div className="lg:col-span-2 flex flex-col h-full">
+            {" "}
+            {/* Added flex flex-col h-full to stretch column */}
+            <div className="bg-gray-800/40 backdrop-blur-sm border border-purple-800/30 rounded-2xl p-6 shadow-xl flex flex-col h-full">
+              {" "}
+              {/* Added flex flex-col h-full */}
+              <div className="flex items-center justify-between mb-5 flex-shrink-0">
+                {" "}
+                {/* Added flex-shrink-0 to prevent header shrink */}
                 <div>
                   <p className="text-base font-semibold text-white mb-1">
                     Live-Vorschau
@@ -198,7 +207,9 @@ export default function CreateComponentPage({
                   {newComponent.language.toUpperCase()}
                 </span>
               </div>
-              <div className="border border-purple-800/20 rounded-xl bg-gray-900/50 backdrop-blur-sm overflow-hidden min-h-[500px] shadow-inner">
+              <div className="border border-purple-800/20 rounded-xl bg-gray-900/50 backdrop-blur-sm overflow-hidden flex-1 shadow-inner">
+                {" "}
+                {/* Changed min-h-[500px] to flex-1 */}
                 <ComponentRenderer
                   code={newComponent.code}
                   language="html"
