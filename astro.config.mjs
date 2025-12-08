@@ -15,6 +15,7 @@ export default defineConfig({
   },
 
   output: "server",
+  site: "https://openui-work.vercel.app",
   integrations: [react()],
   adapter: vercel(),
 });
