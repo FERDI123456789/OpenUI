@@ -1,6 +1,8 @@
 # build output
 dist/
 dist/*
+.vercel/
+.vercel/*
 
 
 # generated types
