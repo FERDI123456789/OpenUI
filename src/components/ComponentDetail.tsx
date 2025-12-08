@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 // Lucide Icons: Imports sind OK
 import {
+  Check,
   Eye,
   Code,
   Smartphone,
   Monitor,
   Copy as CopyIcon,
-  Check,
 } from "lucide-react";
 
 // 🚀 KORREKTUR: Syntax Highlighter Imports für maximale Kompatibilität
 // (Wenn die Neuinstallation fehlschlägt, ist dies oft die Lösung)
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import vscDarkPlus from "react-syntax-highlighter/dist/cjs/styles/prism/vsc-dark-plus";
+import vscDarkPlusPkg from "react-syntax-highlighter/dist/esm/styles/prism/vsc-dark-plus";
+
+const { vscDarkPlus } = vscDarkPlusPkg;
 
 import ComponentRenderer from "./ComponentRender"; // Assuming this is your renderer
 
@@ -220,7 +222,7 @@ export default function ComponentDetail({
               // Verwende den vollständigen CSS-String mit JS-Tags für den Renderer
               code={component.code}
               css={component.css}
-              language={component.language}
+              language={"html"}
               viewportMode={viewportMode}
             />
           </div>
