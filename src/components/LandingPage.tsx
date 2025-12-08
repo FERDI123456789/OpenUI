@@ -75,9 +75,12 @@ function LandingPage() {
           every custom UI, tailored by OpenUI.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="bg-purple-600 text-white px-8 py-4 rounded-full font-medium hover:bg-purple-500 transition-all duration-300 text-sm shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105">
-            Start for free
-          </button>
+          <a
+            href="/u"
+            className="bg-purple-600 font-bold text-white px-8 py-4 rounded-full cursor-pointer hover:bg-purple-500 transition-all duration-300 text-sm shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105"
+          >
+            Jetzt Starten!
+          </a>
         </div>
       </div>
 
@@ -101,26 +104,20 @@ function LandingPage() {
       ) : publicComponents.length > 0 ? (
         <div className="relative z-10 mt-40">
           <div className="text-center mb-16">
-            <h2
-              className="text-4xl md:text-5xl font-serif text-white mb-4"
-              style={{ fontFamily: "'Playfair Display', serif" }}
-            >
-              Entdecke unsere{" "}
+            <h2 className="text-4xl md:text-3xl text-white mb-4">
+              Entdecke von anderen luten die Öffentlichen{" "}
               <span className="text-purple-400">Komponenten</span>
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Durchstöbere unsere Sammlung von hochgeladenen UI-Komponenten
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
             {publicComponents.map((component: any) => (
               <div
                 key={component._id}
                 onClick={() => setSelectedComponent(component)}
                 className="group bg-gray-800/40 backdrop-blur-sm border border-purple-800/30 rounded-2xl overflow-hidden hover:border-purple-500/60 hover:shadow-2xl hover:shadow-purple-500/30 hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer active:scale-[0.98]"
                 style={{
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 }}
               >
                 <div className="p-6">

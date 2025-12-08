@@ -76,7 +76,11 @@ export function ComponentRenderer({
       scripts += `<script>${javascript}</script>`;
     }
 
-    if (language === "html" || language === "css" || language === "javascript") {
+    if (
+      language === "html" ||
+      language === "css" ||
+      language === "javascript"
+    ) {
       htmlContent = code;
     } else if (language === "jsx") {
       htmlContent = '<div id="root"></div>';
@@ -103,9 +107,10 @@ export function ComponentRenderer({
     }
 
     const viewportWidth = viewportMode === "mobile" ? "375" : "device-width";
-    const viewportContent = viewportMode === "mobile" 
-      ? `width=${viewportWidth}, initial-scale=1.0, maximum-scale=1.0, user-scalable=no`
-      : "width=device-width, initial-scale=1.0";
+    const viewportContent =
+      viewportMode === "mobile"
+        ? `width=${viewportWidth}, initial-scale=1.0, maximum-scale=1.0, user-scalable=no`
+        : "width=device-width, initial-scale=1.0";
 
     const fullHTML = `
       <!DOCTYPE html>
@@ -136,11 +141,11 @@ export function ComponentRenderer({
       ref={iframeRef}
       sandbox="allow-scripts allow-same-origin"
       className="w-full border-0 bg-white"
-      style={{ 
-        minHeight: viewportMode === "mobile" ? "667px" : "600px", 
+      style={{
+        minHeight: viewportMode === "mobile" ? "667px" : "600px",
         height: viewportMode === "mobile" ? "667px" : "600px",
         maxWidth: viewportMode === "mobile" ? "375px" : "100%",
-        margin: viewportMode === "mobile" ? "0 auto" : "0"
+        margin: viewportMode === "mobile" ? "0 auto" : "0",
       }}
       title="Component Preview"
     />

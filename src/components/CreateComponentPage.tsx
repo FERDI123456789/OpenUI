@@ -8,7 +8,14 @@ export default function CreateComponentPage({
   onCancel,
   getLanguageBadgeColor,
 }: {
-  newComponent: { name: string; description: string; language: string; css: string; code: string; javascript: string };
+  newComponent: {
+    name: string;
+    description: string;
+    language: string;
+    css: string;
+    code: string;
+    javascript: string;
+  };
   onChange: (
     field: "name" | "description" | "language" | "css" | "code" | "javascript",
     value: string
@@ -17,7 +24,9 @@ export default function CreateComponentPage({
   onCancel: () => void;
   getLanguageBadgeColor: (lang: string) => string;
 }) {
-  const [activeTab, setActiveTab] = React.useState<"html" | "css" | "javascript">("html");
+  const [activeTab, setActiveTab] = React.useState<
+    "html" | "css" | "javascript"
+  >("html");
   return (
     <div className="fixed inset-0 bg-gray-900 z-40 overflow-y-auto text-gray-100">
       {/* Purple gradient background effects */}
@@ -39,14 +48,16 @@ export default function CreateComponentPage({
                 <span>←</span>
                 <span>Zurück zum Dashboard</span>
               </button>
-              <h2 
+              <h2
                 className="text-4xl font-semibold text-white mb-3"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
-                Erstelle eine <span className="text-purple-400">Komponente</span>
+                Erstelle eine{" "}
+                <span className="text-purple-400">Komponente</span>
               </h2>
               <p className="text-gray-300 text-lg leading-relaxed">
-                Baue deine Komponente und sieh eine Live-Vorschau, während du tippst.
+                Baue deine Komponente und sieh eine Live-Vorschau, während du
+                tippst.
               </p>
             </div>
 
@@ -144,7 +155,10 @@ export default function CreateComponentPage({
                 )}
                 <p className="text-xs text-gray-400 mt-2 flex items-center gap-1">
                   <span>💡</span>
-                  <span>Tipp: Die Vorschau rechts aktualisiert sich live während du tippst.</span>
+                  <span>
+                    Tipp: Tailwind wird auch automatish gerenderd also kannst du
+                    auch Tailwind benutzen!
+                  </span>
                 </p>
               </div>
 

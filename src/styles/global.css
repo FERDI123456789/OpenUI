@@ -6,8 +6,12 @@
   font-family: "Playfair Display", serif;
 }
 
-body {
+html {
   background-color: #111827; /* bg-gray-900 */
+}
+
+body {
+  background-color: transparent; /* bg-gray-900 */
 }
 
 /* Smooth panel animations */

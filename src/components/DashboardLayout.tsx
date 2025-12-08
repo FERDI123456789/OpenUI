@@ -39,19 +39,19 @@ export default function DashboardLayout({
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 h-full w-64 border-r-2 border-purple-900/50 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 shadow-2xl shadow-purple-900/30">
         {/* Logo/Brand Section */}
-        <div className="p-6 border-b-2 border-purple-800/40 bg-gradient-to-br from-gray-800 via-purple-900/20 to-gray-800">
+        <div className="py-4.5 border-b border-purple-800/40 bg-gradient-to-br from-gray-800 via-purple-900/20 to-gray-800">
           {/* User Avatar */}
-          <div className="text-sm text-gray-300 font-medium flex items-center">
+          <div className="text-sm text-gray-300 font-medium flex items-center justify-center">
             {avatarSvg ? (
               <div
-                className="inline-block w-7 h-7 rounded-full mr-2 shadow-lg shadow-purple-500/30"
+                className="inline-block w-7 h-7 rounded-full mr-2 mb-1 shadow-lg shadow-purple-500/30"
                 dangerouslySetInnerHTML={{ __html: avatarSvg }}
               />
             ) : (
               <div className="inline-block w-7 h-7 rounded-full bg-gray-700 animate-pulse mr-2" />
             )}
             {avatarSvg ? (
-              <span className="bg-gradient-to-r from-white via-purple-200 to-purple-300 bg-clip-text text-transparent">
+              <span className="text-xl bg-clip-text text-white font-bold">
                 {displayUsername}
               </span>
             ) : (
@@ -134,6 +134,7 @@ export default function DashboardLayout({
             </svg>
             <span>Veröffentlicht</span>
           </button>
+          <div className="w-full h-0.5 bg-purple-900/50" />
           <button
             onClick={() => setCurrentPage("discover")}
             className={`w-full flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200 ${
@@ -169,7 +170,10 @@ export default function DashboardLayout({
               {!isOwnProfile && (
                 <button
                   onClick={() => {
-                    const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
+                    const userId =
+                      typeof window !== "undefined"
+                        ? localStorage.getItem("userId")
+                        : null;
                     if (userId) {
                       window.location.href = `/u/${userId}`;
                     } else {
@@ -178,8 +182,18 @@ export default function DashboardLayout({
                   }}
                   className="flex items-center gap-2 text-sm text-gray-300 hover:text-white px-4 py-2 rounded-lg hover:bg-gray-700/50 transition-all duration-200 cursor-pointer border border-transparent hover:border-purple-800/50"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                    />
                   </svg>
                   Zurück
                 </button>
