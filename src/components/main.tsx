@@ -2,13 +2,19 @@ import { useEffect, useState, useRef } from "react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import App from "./App";
 
-export default function Main({ userId }: { userId?: string }) {
+export default function Main({
+  userId,
+  Provider,
+}: {
+  userId?: string;
+  Provider?: any;
+}) {
   const [client, setClient] = useState<ConvexReactClient | null>(null);
   const initializedRef = useRef(false); // Track if already initialized
-
+  console.log(Provider);
   useEffect(() => {
     if (!initializedRef.current) {
-      const convex = new ConvexReactClient(import.meta.env.PUBLIC_CONVEX_URL);
+      const convex = new ConvexReactClient(Provider);
       setClient(convex);
       initializedRef.current = true; // mark as initialized
     }

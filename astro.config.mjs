@@ -7,6 +7,14 @@ import react from "@astrojs/react";
 
 import vercel from "@astrojs/vercel";
 
+import dotenv from "dotenv";
+
+const dev = import.meta.env.DEV;
+
+if (process.env.NODE_ENV === "development") {
+  dotenv.config();
+}
+
 // https://astro.build/config
 export default defineConfig({
   vite: {
