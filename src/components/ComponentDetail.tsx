@@ -228,8 +228,8 @@ export default function ComponentDetail({
         <div
           className={`mt-4 border border-purple-800/30 rounded-xl overflow-hidden bg-gray-900/40 shadow-inner transition-all duration-300 flex items-center justify-center ${
             viewportMode === "mobile"
-              ? "max-w-[600px] mx-auto h-[900px] relative"
-              : "h-[600px] w-full"
+              ? "max-w-[600px] mx-auto h-full relative" // Changed h-[900px] to h-full
+              : "h-full w-full" // Changed h-[600px] to h-full
           }`}
         >
           {viewportMode === "mobile" && (
@@ -256,8 +256,12 @@ export default function ComponentDetail({
           </div>
         </div>
       ) : (
-        <div className="mt-4 border border-purple-800/30 rounded-xl overflow-hidden bg-gray-900/40 shadow-inner">
-          <div className="p-4 space-y-4 min-h-screen overflow-y-auto">
+        <div className="mt-4 border border-purple-800/30 rounded-xl overflow-hidden bg-gray-900/40 shadow-inner h-full">
+          {" "}
+          {/* Added h-full */}
+          <div className="p-4 space-y-4 h-full overflow-y-auto">
+            {" "}
+            {/* Changed min-h-screen to h-full */}
             {/* --- CSS-CODE-BLOCK (separate from JS) --- */}
             {componentCss && (
               <div>
@@ -328,7 +332,6 @@ export default function ComponentDetail({
                 </div>
               </div>
             )}
-
             {/* --- Separate JS-CODE-BLOCK --- */}
             {componentJs && (
               <div>
@@ -399,7 +402,6 @@ export default function ComponentDetail({
                 </div>
               </div>
             )}
-
             {/* --- HAUPTCODE-BLOCK (HTML/JSX) --- */}
             <div>
               <div className="flex items-center justify-between mb-2">
