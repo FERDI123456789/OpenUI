@@ -21,6 +21,7 @@
     "included": "^0.0.3",
     "jdenticon": "^3.3.0",
     "lucide-react": "^0.556.0",
+    "prism-react-renderer": "^2.4.1",
     "prismjs": "^1.30.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.0",
