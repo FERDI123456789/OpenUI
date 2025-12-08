@@ -6,10 +6,6 @@ const navItems: { name: string; href: string }[] = [];
 
 interface NavbarProps {}
 
-// Placeholder Icons
-const MenuIconPlaceholder = () => <span className="text-xl">☰</span>;
-const XIconPlaceholder = () => <span className="text-xl">✕</span>;
-
 export default function NavbarWrapper() {
   const [client, setClient] = useState<ConvexReactClient | null>(null);
   const initializedRef = useRef(false);
@@ -85,7 +81,7 @@ function Navbar({}: NavbarProps) {
                   Anmelden
                 </a>
                 <a
-                  href={`/u`}
+                  href={`/u?mode=signup`}
                   className="bg-purple-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-purple-500 transition-all duration-300 text-sm shadow-lg shadow-purple-500/30"
                 >
                   Registrieren
@@ -101,7 +97,7 @@ function Navbar({}: NavbarProps) {
               className="text-gray-300 hover:text-purple-400 p-2 rounded-md transition-colors duration-300"
               aria-label="Toggle menu"
             >
-              {isOpen ? <XIconPlaceholder /> : <MenuIconPlaceholder />}
+              {isOpen ? "✕" : "☰"}
             </button>
           </div>
         </div>
@@ -136,14 +132,14 @@ function Navbar({}: NavbarProps) {
                     onClick={toggleMenu}
                     className="text-gray-300 hover:text-purple-400 px-3 py-2 text-sm font-medium transition-colors duration-300 rounded-md hover:bg-purple-900/20 text-left"
                   >
-                    Log In
+                    Anmelden
                   </a>
                   <a
-                    href={`/u`}
+                    href={`/u?mode=signup`}
                     onClick={toggleMenu}
                     className="bg-purple-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-purple-500 transition-all duration-300 text-sm shadow-lg shadow-purple-500/30 mt-2 text-center"
                   >
-                    Sign Up
+                    Registrieren
                   </a>
                 </>
               )}
