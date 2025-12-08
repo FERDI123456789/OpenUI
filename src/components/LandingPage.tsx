@@ -67,19 +67,19 @@ function LandingPage() {
               <span className="text-purple-400">Inspiration</span>
             </span>
           </span>{" "}
-          <span className="text-white">Für deine Komponenten mit</span>{" "}
+          <span className="text-white">für deine Komponenten mit</span>{" "}
           <span className="text-purple-400">OpenUI</span>
         </h1>
         <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl leading-relaxed mx-auto">
-          OpenUI ist wie eine offene see wo du deine UI Komponenten ordern
-          kannst aber auch veröffentlichten und von anderen angucken kannst
+          OpenUI ist wie eine offene See — du kannst deine UI-Komponenten
+          ordnen, veröffentlichen und von anderen entdecken.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a
-            href="/u"
+            href="/u?mode=signup"
             className="bg-purple-600 font-bold text-white px-8 py-4 rounded-full cursor-pointer hover:bg-purple-500 transition-all duration-300 text-sm shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105"
           >
-            Jetzt Starten!
+            Jetzt einen Account erstellen und starten!
           </a>
         </div>
       </div>
