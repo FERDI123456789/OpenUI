@@ -36,7 +36,7 @@ export default function CreateComponentPage({
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 py-8">
+      <div className="relative z-10 mx-auto px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Form */}
           <div className="lg:col-span-1 space-y-6">
